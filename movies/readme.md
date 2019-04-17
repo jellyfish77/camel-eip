@@ -59,8 +59,11 @@ Commit record
 
 ### From CSV File Queue
 Aggregate all records back together
-Build CSV Record  (with WireTap to message log)
-Write CSV File
+Write to CSV Aggregated queue (with WireTap to message log)
+
+### From CSV Aggregated Queue
+Build CSV Record  from XML CMM
+Write CSV File with current timestamp appended to FN (with WireTap to message log)
 
 ## Source Data
 
