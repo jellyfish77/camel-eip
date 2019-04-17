@@ -6,6 +6,8 @@
 
 ## Operation
 
+![Alt text](/../<pictures>/pictures/movies.png?raw=true "Integration Flow")
+
 ### From CSV File
 Read CSV input file
 Store in input queue (with WireTap to message log)
