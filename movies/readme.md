@@ -4,9 +4,12 @@
 
 	mvn clean compile exec:java -Dexec.mainClass=csvtoxml.javadsl.CSVToXMLTransformation
 
+## Unit Tests
+
+
 ## Operation
 
-![Alt text](/../<pictures>/pictures/movies.png?raw=true "Integration Flow")
+![Integration Flow](/pictures/movies.png?raw=true "Integration Flow")
 
 ### From CSV File
 Read CSV input file
