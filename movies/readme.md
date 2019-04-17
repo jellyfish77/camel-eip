@@ -2,7 +2,8 @@
 
 ## Execution
 
-	mvn clean compile exec:java -Dexec.mainClass=csvtoxml.javadsl.CSVToXMLTransformation
+	mvn camel:run
+	
 
 ## Unit Tests
 
@@ -162,7 +163,7 @@ Message Sequence
 ### Message Routing
 Pipes and Filters
 Content Based Router
-Splitter
+- Splitter: split csv file into 1 msg per row
 Aggregator
 Resequencer
 Message Broker

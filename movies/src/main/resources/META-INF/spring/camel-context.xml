@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file 
+	distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to You under 
+	the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may 
+	obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to 
+	in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF 
+	ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under 
+	the License. -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring 
+       http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="jms" class="org.apache.camel.component.jms.JmsComponent">
+		<property name="connectionFactory">
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL" value="vm://localhost" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="downloadLogger" class="loggers.DownloadLogger" />
+
+	<bean id="messageLogger" class="loggers.MessageLogger" />
+
+	<bean id="movieCsvToXMLProcessor" class="movies.MovieCsvToXMLProcessor" />
+
+	<bean id="escapeCharsBean" class="movies.EscapeSpecialCharsBean" />
+	
+	<bean id="convertCsvToXml" class="movies.ConvertCsvToXml" />
+
+	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true">
+
+		<route id="inputCsvFileRoute">
+			<from uri="file:src/data/input?maxMessagesPerPoll=1" />			
+			<to uri="jms:movieCsvFile" />
+			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue jms:inputCsvFile" loggingLevel="INFO" marker="CSVComplete" />
+		</route>
+		
+		<route id="splitCsvFileRoute">
+			<from uri="jms:movieCsvFile" />
+			<process ref="messageLogger" />
+			<split streaming="true">
+				<tokenize token="\n" />
+				<to uri="jms:movieCsvLine" />
+			</split>				
+		</route>
+	
+		<route id="convertCsvToXmlRoute">
+			<from uri="jms:movieCsvLine" />
+			<process ref="messageLogger" />
+			<bean ref="convertCsvToXml" method="convertCsvToXml"/>
+			<to uri="jms:movieXmlRow" />			
+		</route>
+		
+		<route id="enrichRoute">
+			<from uri="jms:movieXmlRow" />
+			<process ref="messageLogger" />
+			<!-- call IBDB REST service -->
+			<to uri="jms:enrichedMovieXmlRow" />			
+		</route>		
+
+	</camelContext>
+
+</beans>
