@@ -9,7 +9,7 @@
 
 ## Operation
 
-![Integration Flow](/pictures/movies.png?raw=true "Integration Flow")
+![Integration Flow](pictures/movies.png?raw=true "Integration Flow")
 
 ### From CSV File
 Read CSV input file
