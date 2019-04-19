@@ -48,6 +48,7 @@
 				<log message="Split line: ${body}" loggingLevel="INFO" />
 				<log message="Split line: ${property.CamelSplitIndex}" loggingLevel="INFO" />
 				<filter>
+					<!-- Ignore CSV header row -->
 					<simple>${property.CamelSplitIndex} > 0</simple>
 					<to uri="jms:movieCsvLine" />
 				</filter>
