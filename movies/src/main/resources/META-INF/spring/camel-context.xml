@@ -28,39 +28,50 @@
 	<bean id="movieCsvToXMLProcessor" class="movies.MovieCsvToXMLProcessor" />
 
 	<bean id="escapeCharsBean" class="movies.EscapeSpecialCharsBean" />
-	
+
 	<bean id="convertCsvToXml" class="movies.ConvertCsvToXml" />
 
 	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true">
 
 		<route id="inputCsvFileRoute">
-			<from uri="file:src/data/input?maxMessagesPerPoll=1" />			
+			<from uri="file:src/data/input?maxMessagesPerPoll=1" />
 			<to uri="jms:movieCsvFile" />
-			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue jms:inputCsvFile" loggingLevel="INFO" marker="CSVComplete" />
+			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue jms:inputCsvFile" loggingLevel="INFO"
+				marker="CSVComplete" />
 		</route>
-		
+
 		<route id="splitCsvFileRoute">
 			<from uri="jms:movieCsvFile" />
 			<process ref="messageLogger" />
 			<split streaming="true">
 				<tokenize token="\n" />
-				<to uri="jms:movieCsvLine" />
-			</split>				
+				<log message="Split line: ${body}" loggingLevel="INFO" />
+				<log message="Split line: ${property.CamelSplitIndex}" loggingLevel="INFO" />
+				<filter>
+					<simple>${property.CamelSplitIndex} > 0</simple>
+					<to uri="jms:movieCsvLine" />
+				</filter>
+			</split>
 		</route>
-	
+
 		<route id="convertCsvToXmlRoute">
 			<from uri="jms:movieCsvLine" />
 			<process ref="messageLogger" />
-			<bean ref="convertCsvToXml" method="convertCsvToXml"/>
-			<to uri="jms:movieXmlRow" />			
+			<bean ref="convertCsvToXml" method="convertCsvToXml" />
+			<to uri="jms:movieXmlRow" />
 		</route>
-		
+
 		<route id="enrichRoute">
 			<from uri="jms:movieXmlRow" />
 			<process ref="messageLogger" />
-			<!-- call IBDB REST service -->
-			<to uri="jms:enrichedMovieXmlRow" />			
-		</route>		
+			 <!-- Call OMDB REST API -->
+			<to uri="jms:enrichedMovieXmlRow" />
+		</route>
+
+		<route id="languageRoute">
+			<from uri="jms:enrichedMovieXmlRow" />
+			<process ref="messageLogger" />
+		</route>
 
 	</camelContext>
 
