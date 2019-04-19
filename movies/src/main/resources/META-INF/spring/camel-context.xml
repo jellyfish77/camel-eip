@@ -58,7 +58,11 @@
 		<route id="convertCsvToXmlRoute">
 			<from uri="jms:movieCsvLine" />
 			<process ref="messageLogger" />
-			<bean ref="convertCsvToXml" method="convertCsvToXml" />
+			<bean ref="convertCsvToXml" method="convertCsvToXml" />			 
+			<setHeader headerName="movieTitle">
+    			<xpath>/Movie/Title/text()</xpath>
+			</setHeader>			
+			<log message="Converted CSV to XML Record: $simple{in.header.movieTitle}" loggingLevel="INFO"/>			
 			<to uri="jms:movieXmlRow" />
 		</route>
 

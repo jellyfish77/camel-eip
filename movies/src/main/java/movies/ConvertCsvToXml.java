@@ -12,7 +12,7 @@ public class ConvertCsvToXml {
 		Logger LOG = LoggerFactory.getLogger(MovieCsvToXMLProcessor.class);				
 		StringBuffer sb = new StringBuffer();		
 		String[] fields = body.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"); // handle quotes as text-delimiter
-		sb.append("<?xml version = \"1.0\">");
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");		
 		sb.append("<Movie>");
 		sb.append("<Title>" + fields[11].toString().replaceAll("\u00a0", "").replaceAll("^\"|\"$", "").trim() + "</Title>");
 		sb.append("<Gross>" + fields[8].toString().trim() + "</Gross>");
