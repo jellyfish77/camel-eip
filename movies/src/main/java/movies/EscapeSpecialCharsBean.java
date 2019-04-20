@@ -1,7 +1,5 @@
 package movies;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 public class EscapeSpecialCharsBean {
 
 	public static String escapeSpecialChars(String body) {

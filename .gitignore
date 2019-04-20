@@ -30,6 +30,7 @@ hs_err_pid*
 target/
 activemq-data/
 .project
+bin/
 
 # JDT-specific (Eclipse Java Development Tools)     
 .classpath

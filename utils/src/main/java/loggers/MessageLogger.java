@@ -20,17 +20,26 @@ import org.apache.camel.Processor;
 
 public class MessageLogger implements Processor {
 	public void process(Exchange exchange) throws Exception {
-		String exchangeQuery = "INSERT INTO exchanges (" + " server," + " application," + " pattern," + " exchange_id," + " created_timestamp"
-				+ " ) VALUES (" + "?, ?, ?, ?, ?)";
 		
-		String messageQuery = "INSERT INTO messages (" + " exchange_id," + " message_id," + " direction," + 
-				" payload, " + " breadcrumb_id, " + " jms_destination," + " file_path," + " file_path_produced"  
-				+ " ) VALUES (" + "?, ?, ?, ?, ?, ?, ?, ?)";
-		
-		String headerQuery = "INSERT INTO headers (" + " message_id," + " name," + " value"
-				+ " ) VALUES (" + "?, ?, ?)";
+		String query = "INSERT INTO `integration`.`camel-message-log` ("
+				+ " hostname," 
+				+ " breadcrumb_id,"
+				+ " exchange_id,"				
+				+ " exchange_pattern,"
+				+ " exchange_properties,"
+				+ " message_id,"
+				+ " message_direction,"
+				+ " message_headers,"
+				+ " message_body,"
+				+ " jms_destination,"
+				+ " file_path,"
+				+ " file_path_produced,"
+				+ " camel_timestamp" 
+				+ " )"
+				+ " VALUES (" + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				
-		Map props = exchange.getProperties();		
+		Map props = exchange.getProperties();
+		Map headers = exchange.getIn().getHeaders();
 		SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");		
 		java.util.Date dt = formatter.parse(props.get("CamelCreatedTimestamp").toString());						
 		Timestamp ts = Timestamp.valueOf(LocalDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault()));
@@ -43,66 +52,31 @@ public class MessageLogger implements Processor {
 			
 			//System.out.println("Executing statements as batch: ");
 			
-			conn.setAutoCommit(false);
-			
-			PreparedStatement st = conn.prepareStatement(exchangeQuery);
-			st.setString(1, InetAddress.getLocalHost().getHostName());
-			st.setString(2, "Apache Camel");
-			st.setString(3, exchange.getIn().getExchange().getPattern().toString());
-			st.setString(4, exchange.getIn().getExchange().getExchangeId().toString());
-			//st.setDate(5, java.sql.Date.valueOf(dt.toString()));
-			st.setTimestamp(5, ts);
-			//System.out.println(st);
-			st.addBatch();
-			st.executeBatch();			
-			
 			String jms = ""; if(exchange.getIn().getHeader("JMSDestination") == null ) { jms = ""; } else { jms = exchange.getIn().getHeader("JMSDestination").toString(); }
 			String fp = ""; if(exchange.getIn().getHeader("CamelFilePath") == null) { fp = ""; } else { fp = exchange.getIn().getHeader("CamelFilePath").toString(); }
 			String fnp = ""; if(exchange.getIn().getHeader("CamelFileNameProduced") == null) { fnp = ""; } else { fnp = exchange.getIn().getHeader("CamelFileNameProduced").toString(); }
-										
-			st = conn.prepareStatement(messageQuery);
-			st.setString(1, exchange.getIn().getExchange().getExchangeId());
-			st.setString(2, exchange.getIn().getMessageId());
-			st.setString(3, "in");
-			st.setString(4, exchange.getIn().getBody(String.class));
-			st.setString(5, exchange.getIn().getHeader("breadcrumbId").toString());
-			st.setString(6, jms);
-			st.setString(7, fp);
-			st.setString(8, fnp);
+						
+			conn.setAutoCommit(false);
+			
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setString(1, InetAddress.getLocalHost().getHostName());			
+			st.setString(2, exchange.getIn().getHeader("breadcrumbId").toString());			
+			st.setString(3, exchange.getIn().getExchange().getExchangeId().toString());
+			st.setString(4, exchange.getIn().getExchange().getPattern().toString());
+			st.setString(5, props.toString());
+			st.setString(6, exchange.getIn().getMessageId());			
+			st.setString(7, "In");
+			st.setString(8, headers.toString());
+			st.setString(9, exchange.getIn().getBody(String.class));
+			st.setString(10, jms);
+			st.setString(11, fp);
+			st.setString(12, fnp);
+			st.setTimestamp(13, ts);
+			
 			//System.out.println(st);
 			st.addBatch();
 			st.executeBatch();			
-			
-			/*
-			st = conn.prepareStatement(headerQuery);
-			st.setString(1, exchange.getIn().getMessageId());
-			st.setString(2, "CamelFilePath");
-			st.setString(3, exchange.getIn().getHeader("CamelFilePath").toString());
-			//System.out.println(st);
-			st.addBatch();			
-			st.executeBatch();					
-			
-			st = conn.prepareStatement(headerQuery);
-			st.setString(1, exchange.getIn().getMessageId());
-			st.setString(2, "CamelFileLength");
-			st.setString(3, exchange.getIn().getHeader("CamelFileLength").toString());
-			//System.out.println(st);
-			st.addBatch();
-			st.executeBatch();			
-			
-			Calendar c = new GregorianCalendar();
-			c.setTimeInMillis(Long.parseLong(exchange.getIn().getHeader(Exchange.FILE_LAST_MODIFIED).toString()));			
-		    final DateFormat dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
-
-			st = conn.prepareStatement(headerQuery);
-			st.setString(1, exchange.getIn().getMessageId());
-			st.setString(2, "CamelFileLastModified");
-			st.setString(3, dateFormat.format(c.getTime()));
-			//System.out.println(st);
-			st.addBatch();
-			st.executeBatch();			
-			*/
-			
+					
 			conn.commit();
 			st.close();
 			conn.close();

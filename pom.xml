@@ -59,6 +59,8 @@
     <!-- use utf-8 encoding -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- jellyfish77 -->
+	<groovy-version>2.11.0</groovy-version>
   </properties>
 
   <build>

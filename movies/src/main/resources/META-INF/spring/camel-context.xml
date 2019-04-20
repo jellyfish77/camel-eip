@@ -25,18 +25,22 @@
 
 	<bean id="messageLogger" class="loggers.MessageLogger" />
 
-	<bean id="movieCsvToXMLProcessor" class="movies.MovieCsvToXMLProcessor" />
+	<!-- <bean id="movieCsvToXMLProcessor" class="movies.MovieCsvToXMLProcessor" /> -->
 
 	<bean id="escapeCharsBean" class="movies.EscapeSpecialCharsBean" />
 
 	<bean id="convertCsvToXml" class="movies.ConvertCsvToXml" />
+	
+	<bean id="omdbDynamicRouter" class="movies.OmdbDynamicRouterBean"/>
+		
+	<!-- <bean id="uri" class="webservices.UniversalResourceIdentifer" /> -->
 
-	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true">
+	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true" trace="false">
 
 		<route id="inputCsvFileRoute">
 			<from uri="file:src/data/input?maxMessagesPerPoll=1" />
 			<to uri="jms:movieCsvFile" />
-			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue jms:inputCsvFile" loggingLevel="INFO"
+			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue" loggingLevel="INFO"
 				marker="CSVComplete" />
 		</route>
 
@@ -45,8 +49,6 @@
 			<process ref="messageLogger" />
 			<split streaming="true">
 				<tokenize token="\n" />
-				<log message="Split line: ${body}" loggingLevel="INFO" />
-				<log message="Split line: ${property.CamelSplitIndex}" loggingLevel="INFO" />
 				<filter>
 					<!-- Ignore CSV header row -->
 					<simple>${property.CamelSplitIndex} > 0</simple>
@@ -58,24 +60,27 @@
 		<route id="convertCsvToXmlRoute">
 			<from uri="jms:movieCsvLine" />
 			<process ref="messageLogger" />
-			<bean ref="convertCsvToXml" method="convertCsvToXml" />			 
-			<setHeader headerName="movieTitle">
-    			<xpath>/Movie/Title/text()</xpath>
-			</setHeader>			
-			<log message="Converted CSV to XML Record: $simple{in.header.movieTitle}" loggingLevel="INFO"/>			
+			<bean ref="convertCsvToXml" method="convertCsvToXml" />
 			<to uri="jms:movieXmlRow" />
 		</route>
 
 		<route id="enrichRoute">
 			<from uri="jms:movieXmlRow" />
 			<process ref="messageLogger" />
+			<setHeader headerName="movieTitle">
+    			<xpath resultType="java.lang.String">/Movie/Title/text()</xpath>
+			</setHeader>			
+			<log message="Enriching XML for: $simple{in.header.movieTitle}" loggingLevel="INFO"/>
+			<log message="Invoking URL: $simple{in.header.url}" loggingLevel="INFO"/>			
+			 
 			 <!-- Call OMDB REST API -->
-			<to uri="jms:enrichedMovieXmlRow" />
+			<bean ref="omdbDynamicRouter" method="route"/>			
+			<to uri="direct:enrichedMovieXmlRow" />
 		</route>
 
 		<route id="languageRoute">
-			<from uri="jms:enrichedMovieXmlRow" />
-			<process ref="messageLogger" />
+			<from uri="direct:enrichedMovieXmlRow" />
+			<process ref="messageLogger" />			
 		</route>
 
 	</camelContext>

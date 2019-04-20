@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 public class ConvertCsvToXml {
 	
 	public static String convertCsvToXml(String body) throws Exception {
-		Logger LOG = LoggerFactory.getLogger(MovieCsvToXMLProcessor.class);				
+		Logger LOG = LoggerFactory.getLogger(ConvertCsvToXml.class);				
 		StringBuffer sb = new StringBuffer();		
 		String[] fields = body.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"); // handle quotes as text-delimiter
 		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");		
