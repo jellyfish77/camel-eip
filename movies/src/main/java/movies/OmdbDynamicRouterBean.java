@@ -14,14 +14,12 @@ public class OmdbDynamicRouterBean {
 	}
 
 	private String whereToGo(String body, String previous) {
-		Logger LOG = LoggerFactory.getLogger(ConvertCsvToXml.class);	
+		Logger LOG = LoggerFactory.getLogger(OmdbDynamicRouterBean.class);	
 		
 		LOG.info("Previous route:" + previous);
 		
 		if (previous == null) {
-			return "mock://a";
-		} else if ("mock://a".equals(previous)) {
-			return "language://simple:Bye ${body}";
+			return "http://www.omdbapi.com/?apikey=9949578d&amp;t=The+Chronicles+of+Narnia%3A+The+Lion%2C+the+Witch+and+the+Wardrobe";		
 		} else {
 			return null;
 		}
