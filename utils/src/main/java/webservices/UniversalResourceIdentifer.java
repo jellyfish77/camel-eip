@@ -24,5 +24,4 @@ public class UniversalResourceIdentifer {
 	    return result;
 	}
 	
-	
 }

@@ -25,6 +25,8 @@
 
 	<bean id="messageLogger" class="loggers.MessageLogger" />
 
+	<!-- <bean id="uri" class="webservices.UniversalResourceIdentifier" /> -->
+
 	<!-- <bean id="movieCsvToXMLProcessor" class="movies.MovieCsvToXMLProcessor" /> -->
 
 	<bean id="escapeCharsBean" class="movies.EscapeSpecialCharsBean" />
@@ -32,7 +34,7 @@
 	<bean id="convertCsvToXml" class="movies.ConvertCsvToXml" />
 
 	<bean id="omdbDynamicRouter" class="movies.OmdbDynamicRouterBean" />
-	
+
 	<bean id="omdbService" class="movies.OmdbServiceBean" />
 
 	<bean id="properties" class="org.apache.camel.component.properties.PropertiesComponent">
@@ -80,7 +82,8 @@
 
 			<!-- Call OMDB REST API -->
 			<!-- <bean ref="omdbDynamicRouter" method="route" /> -->
-			<bean ref="omdbService" method="enrichMovie" />
+			<log message="Invoking URL: {{omdbUrl}}" loggingLevel="INFO" />
+			<bean ref="omdbService" method="enrichMovie" />			
 			<to uri="direct:enrichedMovieXmlRow" />
 		</route>
 
@@ -90,5 +93,9 @@
 		</route>
 
 	</camelContext>
+
+	
+
+
 
 </beans>

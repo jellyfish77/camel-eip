@@ -18,13 +18,13 @@ public class OmdbServiceBean {
 		
 		Logger LOG = LoggerFactory.getLogger(OmdbServiceBean.class);
 		
+		// uri encode title and build url (http://www.omdbapi.com/?apikey=<key>&t=The+Crying+Game)		
+		movieTitle = webservices.UniversalResourceIdentifer.encodeURIComponent(movieTitle);
 		LOG.info("Movie title '" + movieTitle + "'");
-		
-		// get movie title
-		
-		// uri encode title and build url
+		String url = "http://www.omdbapi.com/?apikey=<key>&t=" + movieTitle;
 		
 		// call REST service and load result into POJO JSON model
+		
 		
 		// enrich data in XML body using POJO
 		
