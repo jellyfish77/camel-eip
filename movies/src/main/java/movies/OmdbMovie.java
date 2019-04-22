@@ -15,6 +15,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 		"Language", "Country", "Awards", "Poster", "Ratings", "Metascore", "imdbRating", "imdbVotes", "imdbID", "Type",
 		"DVD", "BoxOffice", "Production", "Website", "Response" })
 
+/*
+ * Generated using: http://www.jsonschema2pojo.org/
+ * 
+ */
+
 public class OmdbMovie {
 
 	@JsonProperty("Title")
