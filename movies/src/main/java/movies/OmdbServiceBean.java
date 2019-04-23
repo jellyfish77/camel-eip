@@ -60,7 +60,7 @@ public class OmdbServiceBean {
 	}
 	
 	public OmdbMovie getOmdbMovie() {
-		// HTTP GET movie from REST service and deserialize to OmdbMovie object
+		// HTTP GET movie from REST service and deserialize to OmdbMovie object (the GET response type)
 	    return target
 	            .request(MediaType.APPLICATION_JSON)
 	            .get(OmdbMovie.class);

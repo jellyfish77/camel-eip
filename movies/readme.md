@@ -1,9 +1,9 @@
 # Movies Integration Project
 
 ## ToDos
+- Clean up dependancies
 - Exception Handling
 - Unit tests
-
 
 ## Execution
 
