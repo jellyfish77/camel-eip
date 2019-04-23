@@ -1,5 +1,6 @@
 package movies;
 
+import java.io.IOException;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -37,11 +38,26 @@ public class OmdbServiceBean {
 		LOG.info("URL: " + url);
 		
 		// call REST service and load result into POJO JSON model
-		init(url);
-		OmdbMovie omdbMovie= getOmdbMovie();		
-		LOG.info("OmdbMovie object: " + omdbMovie.toString());
-		LOG.info("Director: " + omdbMovie.getDirector());
-		LOG.info("Actors: " + omdbMovie.getActors());
+		String json = ClientBuilder.newClient().target(url).request().accept(MediaType.APPLICATION_JSON).get(String.class);
+		LOG.info("HTTP GET Resp:" + json);
+		
+		OmdbMovie omdbMovie = null;
+		
+		try {
+			omdbMovie = OmdbMovieMapper.createObdmMovie(json);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Uh oh spaghettios!");
+			e.printStackTrace();
+		}
+		
+		LOG.info("OmdbMovie Object: " + omdbMovie.toString());
+		
+		//init(url);
+		//OmdbMovie omdbMovie= getOmdbMovie();		
+		//LOG.info("OmdbMovie object: " + omdbMovie.toString());
+		//LOG.info("Director: " + omdbMovie.getDirector());
+		//LOG.info("Actors: " + omdbMovie.getActors());
 		
 		// enrich data in XML body using POJO
 		

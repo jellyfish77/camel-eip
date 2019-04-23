@@ -43,8 +43,11 @@
 
   <properties>
     <activemq-version>5.15.9</activemq-version>
+
     <camel-version>2.23.2</camel-version>
+
     <cxf-version>4.13</cxf-version>
+
     <!-- hawtio-maven-plugin -->
     <hawtio-version>2.6.0</hawtio-version>
     
@@ -66,6 +69,10 @@
 	<groovy-version>2.11.0</groovy-version>
 	<jersey-version>2.28</jersey-version>
 	<rs-api-version>2.1.1</rs-api-version>
+	
+	<!-- jackson-core -->
+	<jackson-version>2.9.8</jackson-version>
+	
   </properties>
 
   <build>

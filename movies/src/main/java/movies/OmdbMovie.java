@@ -9,17 +9,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+//import org.apache.commons.lang.builder.ToStringBuilder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "Title", "Year", "Rated", "Released", "Runtime", "Genre", "Director", "Writer", "Actors", "Plot",
 		"Language", "Country", "Awards", "Poster", "Ratings", "Metascore", "imdbRating", "imdbVotes", "imdbID", "Type",
 		"DVD", "BoxOffice", "Production", "Website", "Response" })
-
-/*
- * Generated using: http://www.jsonschema2pojo.org/
- * 
- */
-
+@JsonDeserialize(using = OmdbMovieDeserializer.class)
 public class OmdbMovie {
 
 	@JsonProperty("Title")
@@ -74,6 +71,75 @@ public class OmdbMovie {
 	private String response;
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+	/**
+	 * No args constructor for use in serialization
+	 * 
+	 */
+	public OmdbMovie() {
+	}
+
+	/**
+	 * 
+	 * @param genre
+	 * @param metascore
+	 * @param imdbVotes
+	 * @param runtime
+	 * @param imdbID
+	 * @param type
+	 * @param production
+	 * @param plot
+	 * @param response
+	 * @param released
+	 * @param imdbRating
+	 * @param title
+	 * @param actors
+	 * @param year
+	 * @param writer
+	 * @param boxOffice
+	 * @param website
+	 * @param director
+	 * @param dVD
+	 * @param country
+	 * @param awards
+	 * @param poster
+	 * @param language
+	 * @param rated
+	 * @param ratings
+	 * @return
+	 */
+	public OmdbMovie(String title, String year, String rated, String released, String runtime, String genre,
+			String director, String writer, String actors, String plot, String language, String country, String awards,
+			String poster, List<OmdbRating> ratings, String metascore, String imdbRating, String imdbVotes,
+			String imdbID, String type, String dVD, String boxOffice, String production, String website,
+			String response) {
+//super();
+		this.title = title;
+		this.year = year;
+		this.rated = rated;
+		this.released = released;
+		this.runtime = runtime;
+		this.genre = genre;
+		this.director = director;
+		this.writer = writer;
+		this.actors = actors;
+		this.plot = plot;
+		this.language = language;
+		this.country = country;
+		this.awards = awards;
+		this.poster = poster;
+		this.ratings = ratings;
+		this.metascore = metascore;
+		this.imdbRating = imdbRating;
+		this.imdbVotes = imdbVotes;
+		this.imdbID = imdbID;
+		this.type = type;
+		this.dVD = dVD;
+		this.boxOffice = boxOffice;
+		this.production = production;
+		this.website = website;
+		this.response = response;
+	}
 
 	@JsonProperty("Title")
 	public String getTitle() {
@@ -333,6 +399,19 @@ public class OmdbMovie {
 	@JsonAnySetter
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
+	}
+
+	@Override
+	public String toString() {
+		return new org.apache.commons.lang3.builder.ToStringBuilder(this).append("title", title).append("year", year)
+				.append("rated", rated).append("released", released).append("runtime", runtime).append("genre", genre)
+				.append("director", director).append("writer", writer).append("actors", actors).append("plot", plot)
+				.append("language", language).append("country", country).append("awards", awards)
+				.append("poster", poster).append("ratings", ratings).append("metascore", metascore)
+				.append("imdbRating", imdbRating).append("imdbVotes", imdbVotes).append("imdbID", imdbID)
+				.append("type", type).append("dVD", dVD).append("boxOffice", boxOffice).append("production", production)
+				.append("website", website).append("response", response)
+				.append("additionalProperties", additionalProperties).toString();
 	}
 
 }

@@ -8,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+//import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "Source", "Value" })
-
 public class OmdbRating {
 
 	@JsonProperty("Source")
@@ -20,6 +20,25 @@ public class OmdbRating {
 	private String value;
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+	/**
+	 * No args constructor for use in serialization
+	 * @return 
+	 * 
+	 */
+	public void omdbRating() {
+	}
+
+	/**
+	 * 
+	 * @param source
+	 * @param value
+	 */
+	public OmdbRating(String source, String value) {
+		//super();
+		this.source = source;
+		this.value = value;
+	}
 
 	@JsonProperty("Source")
 	public String getSource() {
@@ -49,6 +68,12 @@ public class OmdbRating {
 	@JsonAnySetter
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
+	}
+
+	@Override
+	public String toString() {
+		return new org.apache.commons.lang3.builder.ToStringBuilder(this).append("source", source).append("value", value)
+				.append("additionalProperties", additionalProperties).toString();
 	}
 
 }
