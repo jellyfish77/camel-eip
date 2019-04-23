@@ -53,7 +53,7 @@
 
 		<route id="splitCsvFileRoute">
 			<from uri="jms:movieCsvFile" />
-			<process ref="messageLogger" />
+			<process ref="messageLogger" id="Log Inbound CSV File"/>
 			<split streaming="true">
 				<tokenize token="\n" />
 				<filter>
@@ -66,14 +66,14 @@
 
 		<route id="convertCsvToXmlRoute">
 			<from uri="jms:movieCsvLine" />
-			<process ref="messageLogger" />
+			<process ref="messageLogger" id="Log Split CSV Row" />
 			<bean ref="convertCsvToXml" method="convertCsvToXml" />
 			<to uri="jms:movieXmlRow" />
 		</route>
 
 		<route id="enrichRoute">
 			<from uri="jms:movieXmlRow" />
-			<process ref="messageLogger" />
+			<process ref="messageLogger" id="Log Converted XML Row" />
 			<setHeader headerName="movieTitle">
 				<xpath resultType="java.lang.String">/Movie/Title/text()</xpath>
 			</setHeader>
@@ -93,7 +93,7 @@
 
 		<route id="languageRoute">
 			<from uri="direct:enrichedMovieXmlRow" />
-			<process ref="messageLogger" />
+			<process ref="messageLogger" id="Log Enriched XML Row"/>
 		</route>
 
 	</camelContext>
