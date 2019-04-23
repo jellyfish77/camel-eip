@@ -1,5 +1,10 @@
 # Movies Integration Project
 
+## ToDos
+- Exception Handling
+- Unit tests
+
+
 ## Execution
 
 	mvn camel:run

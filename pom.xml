@@ -42,15 +42,18 @@
   </modules>
 
   <properties>
-    <activemq-version>5.11.2</activemq-version>
-    <camel-version>2.15.6</camel-version>
-    <cxf-version>3.0.6</cxf-version>
-    <hawtio-version>1.4.63</hawtio-version>
+    <activemq-version>5.15.9</activemq-version>
+    <camel-version>2.23.2</camel-version>
+    <cxf-version>4.13</cxf-version>
+    <!-- hawtio-maven-plugin -->
+    <hawtio-version>2.6.0</hawtio-version>
+    
+    <!-- -->
     <hsqldb-version>1.8.0.10</hsqldb-version>
     <junit-version>4.11</junit-version>
     <log4j-version>1.2.17</log4j-version>
     <spring-version>4.1.7.RELEASE</spring-version>
-    <slf4j-version>1.7.5</slf4j-version>
+    <slf4j-version>1.7.26</slf4j-version>
     <xbean-version>3.18</xbean-version>
     <bundle-plugin-version>2.3.7</bundle-plugin-version>
     <jetty-plugin-version>8.1.16.v20140903</jetty-plugin-version>
@@ -61,6 +64,8 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <!-- jellyfish77 -->
 	<groovy-version>2.11.0</groovy-version>
+	<jersey-version>2.28</jersey-version>
+	<rs-api-version>2.1.1</rs-api-version>
   </properties>
 
   <build>
@@ -71,10 +76,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.5</version>
+          <version>3.8.0</version>
           <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
+            <source>1.8</source>
+            <target>1.8</target>
             <maxmem>256M</maxmem>
             <showDeprecation>true</showDeprecation>
           </configuration>

@@ -55,12 +55,15 @@ public class MessageLogger implements Processor {
 			String jms = ""; if(exchange.getIn().getHeader("JMSDestination") == null ) { jms = ""; } else { jms = exchange.getIn().getHeader("JMSDestination").toString(); }
 			String fp = ""; if(exchange.getIn().getHeader("CamelFilePath") == null) { fp = ""; } else { fp = exchange.getIn().getHeader("CamelFilePath").toString(); }
 			String fnp = ""; if(exchange.getIn().getHeader("CamelFileNameProduced") == null) { fnp = ""; } else { fnp = exchange.getIn().getHeader("CamelFileNameProduced").toString(); }
-						
+			//String brcr = ""; if(exchange.getIn().getHeader("breadcrumbId").toString() == null) { brcr = ""; } else { brcr = exchange.getIn().getHeader("breadcrumbId").toString(); } 
+			String brcr = "";
+			
 			conn.setAutoCommit(false);
 			
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setString(1, InetAddress.getLocalHost().getHostName());			
-			st.setString(2, exchange.getIn().getHeader("breadcrumbId").toString());			
+			//st.setString(1, "mint-dev");
+			st.setString(2, brcr);			
 			st.setString(3, exchange.getIn().getExchange().getExchangeId().toString());
 			st.setString(4, exchange.getIn().getExchange().getPattern().toString());
 			st.setString(5, props.toString());
@@ -81,7 +84,7 @@ public class MessageLogger implements Processor {
 			st.close();
 			conn.close();
 		} catch (UnknownHostException e) {		 
-            e.printStackTrace();        
+            e.printStackTrace();            
 		} catch (SQLException se) {
 			// log exception
 			throw se;
