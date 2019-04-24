@@ -4,7 +4,10 @@
 - Add XSD and validate CMM message
 - Clean up dependancies
 - Exception Handling
+- Use External ApacheMQ
+- Resend on fail
 - Unit tests
+- Deploy to FUSE ESB
 
 ## Execution
 
