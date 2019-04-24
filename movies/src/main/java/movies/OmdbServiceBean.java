@@ -73,26 +73,29 @@ public class OmdbServiceBean {
 
 		// append production info node
 		Element productionElement = xml.createElement("Production");		
-		//Element langElement = xml.createElement("Language");		
-		Element budgetElement = (Element) xml.getElementsByTagName("Budget").item(0);
-		//Element yearElement = xml.createElement("Year");
-		Element dateElement = xml.createElement("ReleaseDate");
-		//langElement.appendChild(xml.createTextNode(omdbMovie.getLanguage()));
-		//yearElement.appendChild(xml.createTextNode(omdbMovie.getYear()));
-		dateElement.appendChild(xml.createTextNode(omdbMovie.getReleased()));		
-		//langElement.getParentNode().removeChild(langElement);
 		productionElement.appendChild((Element) xml.getElementsByTagName("Country").item(0));
 		productionElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));		
-		//budgetElement.getParentNode().removeChild(budgetElement);		
-		productionElement.appendChild(budgetElement);
-		productionElement.appendChild((Element) xml.getElementsByTagName("Color").item(0));
+		productionElement.appendChild((Element) xml.getElementsByTagName("Budget").item(0));		//
 		productionElement.appendChild((Element) xml.getElementsByTagName("Year").item(0));
-		//productionElement.appendChild(yearElement);
-		productionElement.appendChild(dateElement);						
+		Element dateElement = xml.createElement("ReleaseDate");
+		dateElement.appendChild(xml.createTextNode(omdbMovie.getReleased()));
+		productionElement.appendChild(dateElement);
 		movieNode.insertBefore(productionElement, (Element) xml.getElementsByTagName("Genres").item(0));
 				
 		// append format info node
-		//Element productionElement = xml.createElement("Production");
+		Element formatElement = xml.createElement("Format");
+		formatElement.appendChild((Element) xml.getElementsByTagName("Color").item(0));
+		formatElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));
+		formatElement.appendChild((Element) xml.getElementsByTagName("AspectRatio").item(0));
+		Element durElement = (Element) xml.getElementsByTagName("Duration").item(0);		 
+        durElement.getParentNode().removeChild(durElement);
+		Element runElement = xml.createElement("Runtime");
+		runElement.appendChild(xml.createTextNode(omdbMovie.getRuntime()));
+		formatElement.appendChild(runElement);		
+		movieNode.insertBefore(formatElement, (Element) xml.getElementsByTagName("Production").item(0));
+		
+		// append plot node
+		//Element formatElement = xml.createElement("Format");
 		
 		// append writers
 		Element writersElement = xml.createElement("Writers");
