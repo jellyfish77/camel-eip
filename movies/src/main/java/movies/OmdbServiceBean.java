@@ -11,6 +11,8 @@ import org.apache.camel.language.XPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
@@ -35,51 +37,36 @@ public class OmdbServiceBean {
 		//LOG.info("URL: " + headers.get("omdbUrl"));
 		String url = headers.get("omdbUrl") + movieTitle;
 		url = url.replaceAll("<key>", headers.get("omdbKey").toString());
-		LOG.info("URL: " + url);
+		LOG.info("Enriching XML Movie Record using REST Service at URL \"" + url + "\"");
 		
-		// call REST service and load result into POJO JSON model
+		// call REST service and save resultant JSON 
 		String json = ClientBuilder.newClient().target(url).request().accept(MediaType.APPLICATION_JSON).get(String.class);
-		LOG.info("HTTP GET Resp:" + json);
+		//LOG.info("HTTP GET Resp:" + json);
 		
-		OmdbMovie omdbMovie = null;
-		
+		// deserialize JSON to object
+		OmdbMovie omdbMovie = null;		
 		try {
 			omdbMovie = OmdbMovieMapper.createObdmMovie(json);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {			
 			System.out.println("Uh oh spaghettios!");
 			e.printStackTrace();
+		}		
+		//LOG.info("OmdbMovie Object: " + omdbMovie.toString());
+		
+		for (OmdbRating rating : omdbMovie.getRatings()) {
+			LOG.info("Rating Source: " + rating.getSource() + ", Rating Value: " + rating.getValue()); 
 		}
-		
-		LOG.info("OmdbMovie Object: " + omdbMovie.toString());
-		
-		//init(url);
-		//OmdbMovie omdbMovie= getOmdbMovie();		
-		//LOG.info("OmdbMovie object: " + omdbMovie.toString());
-		//LOG.info("Director: " + omdbMovie.getDirector());
-		//LOG.info("Actors: " + omdbMovie.getActors());
-		
-		// enrich data in XML body using POJO
-		
-		// return enriched body
+				
+		// enrich data in XML body with data from OMDB REST service
+		Node movieNode = xml.getFirstChild();
+		//xml.getElementsByTagName("");
+		Element writerElement = xml.createElement("Writer");
+		writerElement.appendChild(xml.createTextNode("The writer's name"));
+		//movieNode.appendChild(writerElement);
+		//movieNode.insertBefore((Element) xml.getElementsByTagName("Director").item(0), writerElement);		
+		movieNode.insertBefore(writerElement, (Element) xml.getElementsByTagName("Director").item(0));
+		// return enriched body		
 		return xml;
-	}
-	
-	private Client client;
-	private WebTarget target;
-	
-	@PostConstruct
-	protected void init(String url) {
-		System.out.println("Init");
-	    client = ClientBuilder.newClient();
-	    target = client.target(url);	       
-	}
-	
-	public OmdbMovie getOmdbMovie() {
-		// HTTP GET movie from REST service and deserialize to OmdbMovie object (the GET response type)
-	    return target
-	            .request(MediaType.APPLICATION_JSON)
-	            .get(OmdbMovie.class);
 	}
 	
 }

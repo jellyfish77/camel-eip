@@ -1,6 +1,7 @@
 # Movies Integration Project
 
 ## ToDos
+- Add XSD and validate CMM message
 - Clean up dependancies
 - Exception Handling
 - Unit tests

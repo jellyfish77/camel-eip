@@ -26,9 +26,8 @@ public class OmdbMovieMapper {
 
 		// create ObjectMapper instance
 		ObjectMapper objectMapper = new ObjectMapper();
-
-		// convert json string to object
-		//OmdbMovie omdbMovie = objectMapper.readValue(jsonData, OmdbMovie.class);
+		
+		// convert JSON to object (will use the deserializer annotated on OmdbMovie) 
 		OmdbMovie omdbMovie = objectMapper.reader().forType(OmdbMovie.class).readValue(jsonData);
 	
 		return omdbMovie;

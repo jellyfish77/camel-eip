@@ -83,7 +83,7 @@
 			<setHeader headerName="omdbKey">
 				<simple>{{omdbKey}}</simple>
 			</setHeader>
-			<log message="Enriching '$simple{in.header.movieTitle}' using OMDB REST Service..." loggingLevel="INFO" />
+			<!-- <log message="Enriching '$simple{in.header.movieTitle}' using OMDB REST Service..." loggingLevel="INFO" /> -->
 			<!-- <log message="Invoking URL: $simple{in.header.url}" loggingLevel="INFO" /> -->
 			<!-- Call OMDB REST API -->			
 			<!-- <log message="Invoking URL: {{omdbUrl}}" loggingLevel="INFO" /> -->
