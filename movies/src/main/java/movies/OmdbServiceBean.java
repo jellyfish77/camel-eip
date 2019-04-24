@@ -59,12 +59,28 @@ public class OmdbServiceBean {
 				
 		// enrich data in XML body with data from OMDB REST service
 		Node movieNode = xml.getFirstChild();
-		//xml.getElementsByTagName("");
+		
+		// append writer
+		Element writersElement = xml.createElement("Writers");
 		Element writerElement = xml.createElement("Writer");
-		writerElement.appendChild(xml.createTextNode("The writer's name"));
-		//movieNode.appendChild(writerElement);
-		//movieNode.insertBefore((Element) xml.getElementsByTagName("Director").item(0), writerElement);		
-		movieNode.insertBefore(writerElement, (Element) xml.getElementsByTagName("Director").item(0));
+		writerElement.appendChild(xml.createTextNode(omdbMovie.getWriter()));
+		writersElement.appendChild(writerElement);
+		movieNode.insertBefore(writersElement, (Element) xml.getElementsByTagName("NumReviews").item(0));
+				
+		// append ratings
+		Element ratingsElement = xml.createElement("Ratings");		
+		for (OmdbRating rating : omdbMovie.getRatings()) {
+			Element ratingElement = xml.createElement("Rating");
+			Element sourceElement = xml.createElement("Source");
+			Element valueElement = xml.createElement("Value");			
+			sourceElement.appendChild(xml.createTextNode(rating.getSource()));
+			valueElement.appendChild(xml.createTextNode(rating.getValue()));
+			ratingElement.appendChild(sourceElement);
+			ratingElement.appendChild(valueElement);
+			ratingsElement.appendChild(ratingElement);
+			movieNode.insertBefore(ratingsElement, (Element) xml.getElementsByTagName("Duration").item(0));
+		}
+		
 		// return enriched body		
 		return xml;
 	}
