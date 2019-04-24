@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
+//import javax.annotation.PostConstruct;
 
 import org.apache.camel.Body;
 import org.apache.camel.Headers;
@@ -17,8 +17,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
+//import javax.ws.rs.client.Client;
+//import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -95,9 +95,18 @@ public class OmdbServiceBean {
 		movieNode.insertBefore(formatElement, (Element) xml.getElementsByTagName("Production").item(0));
 		
 		// append plot node
-		//Element formatElement = xml.createElement("Format");
+		Element plotElement = xml.createElement("Plot");
+		Element plotDescElement = xml.createElement("Description");
+		plotDescElement.appendChild(xml.createTextNode(omdbMovie.getPlot()));
+		plotElement.appendChild(plotDescElement);
+		plotElement.appendChild((Element) xml.getElementsByTagName("PlotKeywords").item(0));
+		movieNode.insertBefore(plotElement, (Element) xml.getElementsByTagName("UserVotes").item(0));
 		
-		// append writers
+		// remove IMDB score node
+		Element scoreElement = (Element) xml.getElementsByTagName("ImdbScore").item(0);
+		movieNode.removeChild(scoreElement);
+		
+		// append writers		
 		Element writersElement = xml.createElement("Writers");
 		Element writerElement = xml.createElement("Writer");
 		writerElement.appendChild(xml.createTextNode(omdbMovie.getWriter()));
