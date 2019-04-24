@@ -22,14 +22,14 @@ public class ConvertCsvToXml {
 		sb.append("<Color>" + fields[0].toString().trim() + "</Color>");
 		sb.append("<UserVotes>" + fields[12].toString().trim() + "</UserVotes>");			
 		sb.append("<NumUsersReviewed>" + fields[18].toString().trim() + "</NumUsersReviewed>");			
-		sb.append("<Language>" + fields[20].toString().trim() + "</Language>");
+		sb.append("<Language>" + fields[19].toString().trim() + "</Language>");
 		sb.append("<Rating>" + fields[21].toString().trim() + "</Rating>");
 		sb.append("<Budget>" + fields[22].toString().trim() + "</Budget>");
 		sb.append("<Year>" + fields[23].toString().trim() + "</Year>");
 		sb.append("<ImdbScore>" + fields[25].toString().trim() + "</ImdbScore>");
 		sb.append("<ImdbLink>" + fields[17].toString().trim() + "</ImdbLink>");
 		sb.append("<AspectRatio>" + fields[26].toString().trim() + "</AspectRatio>");
-		sb.append("<Country>" + fields[19].toString().trim() + "</Country>");
+		sb.append("<Country>" + fields[20].toString().trim() + "</Country>");
 		sb.append("<FacebookLikes>" + fields[27].toString().trim() + "</FacebookLikes>");
 		sb.append("<NumPosterFaces>" + fields[15].toString().trim() + "</NumPosterFaces>");
 		sb.append("<PlotKeywords>" + processValues(fields[16].toString().trim(), "|", "PlotKeyword") + "</PlotKeywords>");

@@ -71,6 +71,29 @@ public class OmdbServiceBean {
 		// enrich data in XML body with data from OMDB REST service
 		Node movieNode = xml.getFirstChild();
 
+		// append production info node
+		Element productionElement = xml.createElement("Production");		
+		//Element langElement = xml.createElement("Language");		
+		Element budgetElement = (Element) xml.getElementsByTagName("Budget").item(0);
+		//Element yearElement = xml.createElement("Year");
+		Element dateElement = xml.createElement("ReleaseDate");
+		//langElement.appendChild(xml.createTextNode(omdbMovie.getLanguage()));
+		//yearElement.appendChild(xml.createTextNode(omdbMovie.getYear()));
+		dateElement.appendChild(xml.createTextNode(omdbMovie.getReleased()));		
+		//langElement.getParentNode().removeChild(langElement);
+		productionElement.appendChild((Element) xml.getElementsByTagName("Country").item(0));
+		productionElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));		
+		//budgetElement.getParentNode().removeChild(budgetElement);		
+		productionElement.appendChild(budgetElement);
+		productionElement.appendChild((Element) xml.getElementsByTagName("Color").item(0));
+		productionElement.appendChild((Element) xml.getElementsByTagName("Year").item(0));
+		//productionElement.appendChild(yearElement);
+		productionElement.appendChild(dateElement);						
+		movieNode.insertBefore(productionElement, (Element) xml.getElementsByTagName("Genres").item(0));
+				
+		// append format info node
+		//Element productionElement = xml.createElement("Production");
+		
 		// append writers
 		Element writersElement = xml.createElement("Writers");
 		Element writerElement = xml.createElement("Writer");
@@ -101,13 +124,11 @@ public class OmdbServiceBean {
 				NodeList nodeList = (NodeList) xPath.compile("//Actor/Name[text()='" + actorStr + "']").evaluate(xml,
 						XPathConstants.NODESET);
 				LOG.info("Matches for '" + actorStr + "': " + nodeList.getLength());
-				// actor not yet in XML doc
-				if(nodeList.getLength() == 0) {					
+				if (nodeList.getLength() == 0) { 		// actor not yet in XML doc
 					Element actorElement = xml.createElement("Actor");
 					Element nameElement = xml.createElement("Name");
 					actorElement.appendChild(nameElement);
-					nameElement.appendChild(xml.createTextNode(actorStr));					
-					//movieNode insertBefore(writersElement, (Element) xml.getElementsByTagName("NumReviews").item(0));
+					nameElement.appendChild(xml.createTextNode(actorStr));
 					NodeList actorsNodes = xml.getElementsByTagName("Actors");
 					actorsNodes.item(0).appendChild(actorElement);
 				}
