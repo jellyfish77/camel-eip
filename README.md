@@ -1,2 +1,2 @@
 # camel-eip
-Enterprise Integration Pattern Examples using Camel
+An attempt at implementing various Enterprise Integration Patterns in Apache Camel.
