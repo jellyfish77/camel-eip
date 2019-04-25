@@ -1,7 +1,8 @@
 # Movies Integration Project
 
 ## ToDos
-- Add XSD and validate CMM message
+- Enrich XML with fields from REST service [done]
+- Add XSD and validate CMM message [ip]
 - add message # and aggregator
 - Clean up dependancies
 - Exception Handling
