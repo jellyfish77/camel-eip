@@ -2,6 +2,7 @@
 
 ## ToDos
 - Add XSD and validate CMM message
+- add message # and aggregator
 - Clean up dependancies
 - Exception Handling
 - Use External ApacheMQ

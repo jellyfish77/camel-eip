@@ -80,10 +80,19 @@ public class OmdbServiceBean {
 		Element dateElement = xml.createElement("ReleaseDate");
 		dateElement.appendChild(xml.createTextNode(omdbMovie.getReleased()));
 		productionElement.appendChild(dateElement);
+		Element dvdElement = xml.createElement("DvdDate");
+		dvdElement.appendChild(xml.createTextNode(omdbMovie.getDVD()));
+		productionElement.appendChild(dvdElement);
+		Element websiteElement = xml.createElement("Website");
+		websiteElement.appendChild(xml.createTextNode(omdbMovie.getWebsite()));
+		productionElement.appendChild(websiteElement);
 		movieNode.insertBefore(productionElement, (Element) xml.getElementsByTagName("Genres").item(0));
 				
 		// append format info node
 		Element formatElement = xml.createElement("Format");
+		Element typeElement = xml.createElement("Type");
+		typeElement.appendChild(xml.createTextNode(omdbMovie.getType()));
+		formatElement.appendChild(typeElement);
 		formatElement.appendChild((Element) xml.getElementsByTagName("Color").item(0));
 		formatElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));
 		formatElement.appendChild((Element) xml.getElementsByTagName("AspectRatio").item(0));
@@ -101,6 +110,16 @@ public class OmdbServiceBean {
 		plotElement.appendChild(plotDescElement);
 		plotElement.appendChild((Element) xml.getElementsByTagName("PlotKeywords").item(0));
 		movieNode.insertBefore(plotElement, (Element) xml.getElementsByTagName("UserVotes").item(0));
+		
+		// append awards node
+		Element awardsElement = xml.createElement("Awards");
+		awardsElement.appendChild(xml.createTextNode(omdbMovie.getAwards()));
+		movieNode.insertBefore(awardsElement, (Element) xml.getElementsByTagName("UserVotes").item(0));
+		
+		// append poster node
+		Element posterElement = xml.createElement("Poster");
+		posterElement.appendChild(xml.createTextNode(omdbMovie.getPoster()));
+		movieNode.insertBefore(posterElement, (Element) xml.getElementsByTagName("Awards").item(0));
 		
 		// remove IMDB score node
 		Element scoreElement = (Element) xml.getElementsByTagName("ImdbScore").item(0);
