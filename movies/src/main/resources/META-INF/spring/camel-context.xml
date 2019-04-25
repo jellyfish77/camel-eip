@@ -44,7 +44,7 @@
 	<!-- <bean id="uri" class="webservices.UniversalResourceIdentifer" /> -->
 
 	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true" trace="false">
-
+	
 		<route id="inputCsvFileRoute">
 			<from uri="file:src/data/input?maxMessagesPerPoll=1" />
 			<to uri="jms:movieCsvFile" />

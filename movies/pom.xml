@@ -180,6 +180,14 @@
 			<version>2.5</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-json-validator -->
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-json-validator</artifactId>
+			<version>3.0.0-M2</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

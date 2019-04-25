@@ -2,7 +2,7 @@
 
 ## ToDos
 - Enrich XML with fields from REST service [done]
-- Add XSD and validate CMM message (move failures to dead letter) [ip]
+- Add XSD and validate CMM message (move failures to dead letter) [done]
 - add JSON validation and dead letter
 - add message # and aggregator
 - Clean up dependancies
