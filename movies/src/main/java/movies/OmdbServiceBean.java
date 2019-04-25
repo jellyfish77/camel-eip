@@ -71,7 +71,12 @@ public class OmdbServiceBean {
 		// enrich data in XML body with data from OMDB REST service
 		Node movieNode = xml.getFirstChild();
 		javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
-
+		
+		// append imdb id
+		Element imdbElement = xml.createElement("ImdbId");
+		imdbElement.appendChild(xml.createTextNode(omdbMovie.getImdbID()));
+		movieNode.insertBefore(imdbElement, (Element) xml.getElementsByTagName("Gross").item(0));
+		
 		// append production info node
 		Element productionElement = xml.createElement("Production");		
 		//productionElement.appendChild((Element) xml.getElementsByTagName("Country").item(0));
