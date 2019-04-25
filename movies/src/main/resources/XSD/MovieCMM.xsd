@@ -1,0 +1,121 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="Movie">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element type="xs:string" name="Title"/>
+				<xs:element type="xs:string" name="ImdbId"/>
+				<xs:element type="xs:int" name="Gross"/>
+				<xs:element name="Format">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element type="xs:string" name="Type"/>
+							<xs:element type="xs:string" name="Color"/>
+							<xs:element type="xs:string" name="Language"/>
+							<xs:element type="xs:float" name="AspectRatio"/>
+							<xs:element type="xs:string" name="Runtime"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Production">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Countries">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element type="xs:string" name="Country" maxOccurs="unbounded" minOccurs="0"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element type="xs:int" name="Budget"/>
+							<xs:element type="xs:short" name="Year"/>
+							<xs:element type="xs:string" name="ReleaseDate"/>
+							<xs:element type="xs:string" name="DvdDate"/>
+							<xs:element type="xs:string" name="Website"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Genres">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element type="xs:string" name="Genre" maxOccurs="unbounded" minOccurs="0"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Plot">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element type="xs:string" name="Description"/>
+							<xs:element name="PlotKeywords">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element type="xs:string" name="PlotKeyword" maxOccurs="unbounded" minOccurs="0"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element type="xs:string" name="Poster"/>
+				<xs:element type="xs:string" name="Awards"/>
+				<xs:element type="xs:int" name="UserVotes"/>
+				<xs:element type="xs:short" name="NumUsersReviewed"/>
+				<xs:element type="xs:string" name="Rating"/>
+				<xs:element type="xs:anyURI" name="ImdbLink"/>
+				<xs:element type="xs:string" name="Country"/>
+				<xs:element type="xs:byte" name="FacebookLikes"/>
+				<xs:element type="xs:byte" name="NumPosterFaces"/>
+				<xs:element name="Director">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element type="xs:string" name="Name"/>
+							<xs:element type="xs:short" name="FacebookLikes"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Writers">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element type="xs:string" name="Writer"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element type="xs:byte" name="NumReviews"/>
+				<xs:element name="Cast">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Actors">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Actor" maxOccurs="unbounded" minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element type="xs:byte" name="Biling" minOccurs="0"/>
+													<xs:element type="xs:string" name="Name"/>
+													<xs:element type="xs:short" name="FacebookLikes" minOccurs="0"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Ratings">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Rating" maxOccurs="unbounded" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element type="xs:string" name="Source"/>
+										<xs:element type="xs:string" name="Value"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
