@@ -70,10 +70,22 @@ public class OmdbServiceBean {
 
 		// enrich data in XML body with data from OMDB REST service
 		Node movieNode = xml.getFirstChild();
+		javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
 
 		// append production info node
 		Element productionElement = xml.createElement("Production");		
-		productionElement.appendChild((Element) xml.getElementsByTagName("Country").item(0));
+		//productionElement.appendChild((Element) xml.getElementsByTagName("Country").item(0));
+		
+		List<String> countriesList = Arrays.asList(omdbMovie.getCountry().split("\\s*,\\s*"));
+		LOG.info("Found " + countriesList.size() + " countries");		
+		Element countriesElement = xml.createElement("Countries");
+		for (String countryStr : countriesList) {						
+			Element countryElement = xml.createElement("Country");
+			countryElement.appendChild(xml.createTextNode(countryStr));
+			countriesElement.appendChild(countryElement);
+		}
+		productionElement.appendChild(countriesElement);		
+		
 		productionElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));		
 		productionElement.appendChild((Element) xml.getElementsByTagName("Budget").item(0));		//
 		productionElement.appendChild((Element) xml.getElementsByTagName("Year").item(0));
@@ -149,7 +161,7 @@ public class OmdbServiceBean {
 		// append actors (if not already present)
 		List<String> actorsList = Arrays.asList(omdbMovie.getActors().split("\\s*,\\s*"));
 		LOG.info("Found " + actorsList.size() + " writer(s)");
-		javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
+		//javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
 		for (String actorStr : actorsList) {
 			try {
 				NodeList nodeList = (NodeList) xPath.compile("//Actor/Name[text()='" + actorStr + "']").evaluate(xml,
