@@ -45,8 +45,8 @@ public class OmdbServiceBean {
 		// LOG.info("Movie title '" + movieTitle + "'");
 		// LOG.info("Headers: " + headers.toString());
 		// LOG.info("URL: " + headers.get("omdbUrl"));
-		String url = headers.get("omdbUrl") + movieTitle;
-		url = url.replaceAll("<key>", headers.get("omdbKey").toString());
+		String url = headers.get("OmdbUrl") + movieTitle;
+		url = url.replaceAll("<key>", headers.get("OmdbKey").toString());
 		LOG.info("Enriching XML Movie Record using REST Service at URL \"" + url + "\"");
 
 		// call REST service and save resultant JSON

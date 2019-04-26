@@ -44,7 +44,7 @@
 	<!-- <bean id="uri" class="webservices.UniversalResourceIdentifer" /> -->
 
 	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true" trace="false">
-	
+
 		<route id="inputCsvFileRoute">
 			<from uri="file:src/data/input?maxMessagesPerPoll=1" />
 			<to uri="jms:movieCsvFile" />
@@ -59,6 +59,12 @@
 				<filter>
 					<!-- Ignore first row of CSV which is the header -->
 					<simple>${property.CamelSplitIndex} > 0</simple>
+					<setHeader headerName="CsvSize">
+						<simple>${property.CamelSplitSize}</simple>
+					</setHeader>
+					<setHeader headerName="CsvIndex">
+						<simple>${property.CamelSplitIndex}</simple>
+					</setHeader>
 					<to uri="jms:movieCsvLine" />
 				</filter>
 			</split>
@@ -74,15 +80,15 @@
 		<route id="enrichRoute">
 			<from uri="jms:movieXmlRow" />
 			<process ref="messageLogger" id="Log Converted XML Row" />
-			<setHeader headerName="movieTitle">
+			<setHeader headerName="MovieTitle">
 				<xpath resultType="java.lang.String">/Movie/Title/text()</xpath>
 			</setHeader>
-			<setHeader headerName="omdbUrl">
+			<setHeader headerName="OmdbUrl">
 				<simple>{{omdbUrl}}</simple>
 			</setHeader>
-			<setHeader headerName="omdbKey">
+			<setHeader headerName="OmdbKey">
 				<simple>{{omdbKey}}</simple>
-			</setHeader>			
+			</setHeader>
 			<bean ref="omdbService" method="enrichMovie(*, *, *)" />
 			<to uri="direct:enrichedMovieXmlRow" />
 		</route>
