@@ -41,6 +41,8 @@
 		<property name="location" value="classpath:META-INF/spring/camel-config.properties" />
 	</bean>
 
+	<bean id="movieAggregationStrategy" class="movies.MovieAggregationStrategy" />
+
 	<!-- <bean id="uri" class="webservices.UniversalResourceIdentifer" /> -->
 
 	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true" trace="false">
@@ -54,7 +56,8 @@
 		<route id="splitCsvFileRoute">
 			<from uri="jms:movieCsvFile" />
 			<process ref="messageLogger" id="Log Inbound CSV File" />
-			<split streaming="true">
+			<!-- streaming allows processing of one line at a time, but the CamelSplitSize is not available until the last line -->
+			<split streaming="false">
 				<tokenize token="\n" />
 				<filter>
 					<!-- Ignore first row of CSV which is the header -->
@@ -111,10 +114,23 @@
 			<process ref="messageLogger" id="Log Invalid XML Row" />
 		</route>
 
-		<route id="languageRoute">
+		<route id="aggregationRoute">
 			<from uri="jms:validatedMovieXmlRow" />
 			<process ref="messageLogger" id="Log Validated XML Row" />
+			<aggregate strategyRef="movieAggregationStrategy" completionInterval="60000"
+				eagerCheckCompletion="true">
+				<correlationExpression>					
+					<header>CamelFileName</header>
+				</correlationExpression>
+				<to uri="direct:aggregatedMessage" />				
+			</aggregate>
 		</route>
+
+		<route id="languageRoute">
+			<from uri="direct:aggregatedMessage" />
+			<process ref="messageLogger" id="Log Aggregated Message" />
+		</route>
+
 
 	</camelContext>
 

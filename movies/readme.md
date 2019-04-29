@@ -4,7 +4,7 @@
 - Enrich XML with fields from REST service [done]
 - Add XSD and validate CMM message (move failures to dead letter) [done]
 - add JSON validation and dead letter
-- add message # and aggregator
+- add message # and aggregator [ip]
 - Clean up dependancies
 - Exception Handling
 - Use External ApacheMQ

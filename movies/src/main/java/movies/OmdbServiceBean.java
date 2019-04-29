@@ -52,7 +52,7 @@ public class OmdbServiceBean {
 		// call REST service and save resultant JSON
 		String json = ClientBuilder.newClient().target(url).request().accept(MediaType.APPLICATION_JSON)
 				.get(String.class);
-		LOG.info("HTTP GET Resp:" + json);
+		//LOG.info("HTTP GET Resp:" + json);
 
 		// deserialize JSON to object
 		OmdbMovie omdbMovie = null;
@@ -64,10 +64,12 @@ public class OmdbServiceBean {
 		}
 		// LOG.info("OmdbMovie Object: " + omdbMovie.toString());
 
+		/*
 		for (OmdbRating rating : omdbMovie.getRatings()) {
 			LOG.info("Rating Source: " + rating.getSource() + ", Rating Value: " + rating.getValue());
 		}
-
+		*/
+		
 		// enrich data in XML body with data from OMDB REST service
 		Node movieNode = xml.getFirstChild();
 		javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
@@ -165,13 +167,13 @@ public class OmdbServiceBean {
 
 		// append actors (if not already present)
 		List<String> actorsList = Arrays.asList(omdbMovie.getActors().split("\\s*,\\s*"));
-		LOG.info("Found " + actorsList.size() + " writer(s)");
+		//LOG.info("Found " + actorsList.size() + " writer(s)");
 		//javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
 		for (String actorStr : actorsList) {
 			try {
 				NodeList nodeList = (NodeList) xPath.compile("//Actor/Name[text()='" + actorStr + "']").evaluate(xml,
 						XPathConstants.NODESET);
-				LOG.info("Matches for '" + actorStr + "': " + nodeList.getLength());
+				//LOG.info("Matches for '" + actorStr + "': " + nodeList.getLength());
 				if (nodeList.getLength() == 0) { 		// actor not yet in XML doc
 					Element actorElement = xml.createElement("Actor");
 					Element nameElement = xml.createElement("Name");

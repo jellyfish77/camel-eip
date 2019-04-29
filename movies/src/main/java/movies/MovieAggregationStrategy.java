@@ -28,6 +28,7 @@ import org.apache.camel.processor.aggregate.AggregationStrategy;
  */
 public class MovieAggregationStrategy implements AggregationStrategy {
 
+	int i = 0;
     /**
      * Aggregates the messages.
      *
@@ -43,7 +44,8 @@ public class MovieAggregationStrategy implements AggregationStrategy {
         if (oldExchange == null) {
             return newExchange;
         }
-
+        i++;
+        System.out.println("Current message being aggregated: " + i);
         // now we have both an existing message (oldExchange)
         // and a incoming message (newExchange)
         // we want to merge together.
