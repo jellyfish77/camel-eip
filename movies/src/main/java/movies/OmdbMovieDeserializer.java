@@ -35,21 +35,22 @@ public class OmdbMovieDeserializer extends StdDeserializer<OmdbMovie> {
 	public OmdbMovie deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		JsonNode node = jp.getCodec().readTree(jp);
 		//int id = (Integer) ((IntNode) node.get("id")).numberValue();
-		String title = ((node.get("Title").asText()==null) ? "" : node.get("Title").asText());
+		//String title = ((node.get("Title").asText()==null) ? "" : node.get("Title").asText());
+		String title = getNodeValAsText(node, "Title");
 		//int year = (Integer) ((IntNode) node.get("year")).numberValue();
-		String year =  node.get("Year").asText();
-		String rated =  node.get("Rated").asText();
-		String released =  node.get("Released").asText();
-		String runtime=  node.get("Runtime").asText();
-		String genre =  node.get("Genre").asText();
-		String director=  node.get("Director").asText();
-		String writer =  node.get("Writer").asText();
-		String actors =  node.get("Actors").asText();
-		String plot =  node.get("Plot").asText();
-		String language =  node.get("Language").asText();		
-		String country =  node.get("Country").asText();
-		String awards =  node.get("Awards").asText();
-		String poster =  node.get("Poster").asText();
+		String year =  getNodeValAsText(node, "Year");
+		String rated =  getNodeValAsText(node, "Rated");
+		String released =  getNodeValAsText(node, "Released");
+		String runtime=  getNodeValAsText(node, "Runtime");
+		String genre =  getNodeValAsText(node, "Genre");
+		String director=  getNodeValAsText(node, "Director");
+		String writer =  getNodeValAsText(node, "Writer");
+		String actors =  getNodeValAsText(node, "Actors");
+		String plot =  getNodeValAsText(node, "Plot");
+		String language =  getNodeValAsText(node, "Language");		
+		String country =  getNodeValAsText(node, "Country");
+		String awards =  getNodeValAsText(node, "Awards");
+		String poster =  getNodeValAsText(node, "Poster");
 		ArrayList<OmdbRating> ratings = new ArrayList<OmdbRating>();		
 		//ratings.add(new OmdbRating("goober", "10"));
 		//ratings = new ObjectMapper().readValue(node.get("Ratings").asText(), new TypeReference<ArrayList<OmdbRating>>() {});
@@ -58,19 +59,19 @@ public class OmdbMovieDeserializer extends StdDeserializer<OmdbMovie> {
 		if (locatedNode.isArray()) {
 		    for (final JsonNode objNode : locatedNode) {
 		        //LOG.info(objNode.toString());
-		        ratings.add(new OmdbRating(objNode.get("Source").asText(), objNode.get("Value").asText()));
+		        ratings.add(new OmdbRating(getNodeValAsText(objNode, "Source"), getNodeValAsText(objNode, "Value")));
 		    }
 		}		
-		String metascore =  node.get("Metascore").asText();
-		String imdbRating =  node.get("imdbRating").asText().toString();
-		String imdbVotes =  node.get("imdbVotes").asText();
-		String imdbId =  node.get("imdbID").asText();
-		String type =  node.get("Type").asText();
-		String dvd =  node.get("DVD").asText();
-		String boxOffice =  node.get("BoxOffice").asText();
-		String production=  node.get("Production").asText();
-		String website =  node.get("Website").asText();
-		String response =  node.get("Response").asText();
+		String metascore =  getNodeValAsText(node, "Metascore");
+		String imdbRating =  getNodeValAsText(node, "imdbRating");
+		String imdbVotes =  getNodeValAsText(node, "imdbVotes");
+		String imdbId =  getNodeValAsText(node, "imdbID");
+		String type =  getNodeValAsText(node, "Type");
+		String dvd =  getNodeValAsText(node, "DVD");
+		String boxOffice =  getNodeValAsText(node, "BoxOffice");
+		String production=  getNodeValAsText(node, "Production");
+		String website =  getNodeValAsText(node, "Website");
+		String response =  getNodeValAsText(node, "Response");
 		
 		OmdbMovie omdbMovie = new OmdbMovie();
 		omdbMovie.setTitle(title);
@@ -79,5 +80,9 @@ public class OmdbMovieDeserializer extends StdDeserializer<OmdbMovie> {
 		return new OmdbMovie(title, year, rated, released, runtime, genre, director, writer, actors, plot, language, country, awards, poster, ratings, metascore, imdbRating, imdbVotes, imdbId, type, dvd, boxOffice, 
 				production, website, response);
 		//return omdbMovie;
+	}
+	
+	private String getNodeValAsText(JsonNode node, String nodeName) {
+		return ((node.get(nodeName).asText()==null) ? "" : node.get(nodeName).asText());
 	}
 }

@@ -34,11 +34,16 @@ public class OmdbServiceBean {
 
 	private Object nodeList;
 
+	// Enrich XML with addtional data from JSON web service query
 	public Document enrichMovie(@Headers Map<String, Object> headers, @Body Document xml,
 			@XPath("/Movie/Title/text()") String movieTitle) {
 
 		Logger LOG = LoggerFactory.getLogger(OmdbServiceBean.class);
 
+		////////////////////////////////////////////////////////////////////////
+		// Query OMDB web service using movie title
+		////////////////////////////////////////////////////////////////////////
+		
 		// uri encode title and build url
 		// (http://www.omdbapi.com/?apikey=<key>&t=The+Crying+Game)
 		movieTitle = webservices.UniversalResourceIdentifer.encodeURIComponent(movieTitle);
@@ -55,7 +60,7 @@ public class OmdbServiceBean {
 		LOG.info("HTTP GET Resp:" + json);
 
 		// if no data found
-		
+		if(json.contains("Movie not found!")) LOG.info("No data available for '" + movieTitle + "'");
 		
 		// deserialize JSON to object
 		OmdbMovie omdbMovie = null;
@@ -73,10 +78,12 @@ public class OmdbServiceBean {
 		}
 		*/
 		
-		// enrich data in XML body with data from OMDB REST service
-		Node movieNode = xml.getFirstChild();
-		javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
+		////////////////////////////////////////////////////////////////////////		
+		// Enrich data in XML body with data from OMDB web service
+		////////////////////////////////////////////////////////////////////////
 		
+		Node movieNode = xml.getFirstChild();
+				
 		// append imdb id
 		Element imdbElement = xml.createElement("ImdbId");
 		imdbElement.appendChild(xml.createTextNode(omdbMovie.getImdbID()));
@@ -170,14 +177,16 @@ public class OmdbServiceBean {
 
 		// append actors (if not already present)
 		List<String> actorsList = Arrays.asList(omdbMovie.getActors().split("\\s*,\\s*"));
+		javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
 		//LOG.info("Found " + actorsList.size() + " writer(s)");
-		//javax.xml.xpath.XPath xPath = XPathFactory.newInstance().newXPath();
 		for (String actorStr : actorsList) {
 			try {
+				LOG.info("Checking if actor '" + actorStr + "' exists...");
 				NodeList nodeList = (NodeList) xPath.compile("//Actor/Name[text()='" + actorStr + "']").evaluate(xml,
 						XPathConstants.NODESET);
-				//LOG.info("Matches for '" + actorStr + "': " + nodeList.getLength());
-				if (nodeList.getLength() == 0) { 		// actor not yet in XML doc
+				LOG.info("Actor '" + actorStr + "' already exists " + nodeList.getLength() + " times in xml doc");
+				// add actor node if the actor not already in xml doc
+				if (nodeList.getLength() == 0) { 		
 					Element actorElement = xml.createElement("Actor");
 					Element nameElement = xml.createElement("Name");
 					actorElement.appendChild(nameElement);
