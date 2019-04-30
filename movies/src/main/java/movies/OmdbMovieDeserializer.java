@@ -35,7 +35,7 @@ public class OmdbMovieDeserializer extends StdDeserializer<OmdbMovie> {
 	public OmdbMovie deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		JsonNode node = jp.getCodec().readTree(jp);
 		//int id = (Integer) ((IntNode) node.get("id")).numberValue();
-		String title = node.get("Title").asText();
+		String title = ((node.get("Title").asText()==null) ? "" : node.get("Title").asText());
 		//int year = (Integer) ((IntNode) node.get("year")).numberValue();
 		String year =  node.get("Year").asText();
 		String rated =  node.get("Rated").asText();
@@ -54,10 +54,10 @@ public class OmdbMovieDeserializer extends StdDeserializer<OmdbMovie> {
 		//ratings.add(new OmdbRating("goober", "10"));
 		//ratings = new ObjectMapper().readValue(node.get("Ratings").asText(), new TypeReference<ArrayList<OmdbRating>>() {});
 		JsonNode locatedNode = node.path("Ratings");
-		LOG.info(locatedNode.toString());		
+		//LOG.info(locatedNode.toString());		
 		if (locatedNode.isArray()) {
 		    for (final JsonNode objNode : locatedNode) {
-		        LOG.info(objNode.toString());
+		        //LOG.info(objNode.toString());
 		        ratings.add(new OmdbRating(objNode.get("Source").asText(), objNode.get("Value").asText()));
 		    }
 		}		

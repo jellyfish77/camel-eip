@@ -1,10 +1,14 @@
 package movies;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.camel.Body;
 import org.apache.camel.Exchange;
+import org.apache.camel.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 public class ConvertCsvToXml {
 	
@@ -14,7 +18,9 @@ public class ConvertCsvToXml {
 		
 		StringBuffer sb = new StringBuffer();		
 		String[] fields = body.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"); // handle quotes as text-delimiter
-		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");		
+		//String numPosterFaces = ((fields[15].toString().trim() == "") ? "0" : fields[15].toString().trim());
+		
+		//sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");		
 		sb.append("<Movie>");
 		sb.append("<Title>" + fields[11].toString().replaceAll("\u00a0", "").replaceAll("^\"|\"$", "").trim() + "</Title>");
 		sb.append("<Gross>" + fields[8].toString().trim() + "</Gross>");
@@ -24,14 +30,14 @@ public class ConvertCsvToXml {
 		sb.append("<NumUsersReviewed>" + fields[18].toString().trim() + "</NumUsersReviewed>");			
 		sb.append("<Language>" + fields[19].toString().trim() + "</Language>");
 		sb.append("<Rating>" + fields[21].toString().trim() + "</Rating>");
-		sb.append("<Budget>" + fields[22].toString().trim() + "</Budget>");
+		sb.append("<Budget>" + ((fields[22].toString().trim() == "") ? "0" : fields[22].toString().trim()) + "</Budget>");
 		sb.append("<Year>" + fields[23].toString().trim() + "</Year>");
 		sb.append("<ImdbScore>" + fields[25].toString().trim() + "</ImdbScore>");
 		sb.append("<ImdbLink>" + fields[17].toString().trim() + "</ImdbLink>");
 		sb.append("<AspectRatio>" + fields[26].toString().trim() + "</AspectRatio>");
 		sb.append("<Country>" + fields[20].toString().trim() + "</Country>");
 		sb.append("<FacebookLikes>" + fields[27].toString().trim() + "</FacebookLikes>");
-		sb.append("<NumPosterFaces>" + fields[15].toString().trim() + "</NumPosterFaces>");
+		sb.append("<NumPosterFaces>" + ((fields[15].toString().trim() == "") ? "0" : fields[15].toString().trim()) + "</NumPosterFaces>");
 		sb.append("<PlotKeywords>" + processValues(fields[16].toString().trim(), "|", "PlotKeyword") + "</PlotKeywords>");
 		sb.append("<Director>");
 		sb.append("<Name>" + fields[1].toString().trim() + "</Name>");
@@ -78,6 +84,10 @@ public class ConvertCsvToXml {
 			//sb.append("</" + element + ">");
 			return sb.toString();
 		}		
+	}
+	
+	public String addRootNode(@Body String body) {		
+		return "<Movies>" + body + "</Movies>";
 	}
 	
 }

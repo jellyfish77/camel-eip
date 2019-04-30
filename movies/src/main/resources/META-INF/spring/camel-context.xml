@@ -122,6 +122,7 @@
 				<correlationExpression>					
 					<header>CamelFileName</header>
 				</correlationExpression>
+				<bean ref="convertCsvToXml" method="addRootNode" />				
 				<to uri="direct:aggregatedMessage" />				
 			</aggregate>
 		</route>

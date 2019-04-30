@@ -52,8 +52,11 @@ public class OmdbServiceBean {
 		// call REST service and save resultant JSON
 		String json = ClientBuilder.newClient().target(url).request().accept(MediaType.APPLICATION_JSON)
 				.get(String.class);
-		//LOG.info("HTTP GET Resp:" + json);
+		LOG.info("HTTP GET Resp:" + json);
 
+		// if no data found
+		
+		
 		// deserialize JSON to object
 		OmdbMovie omdbMovie = null;
 		try {
@@ -84,7 +87,7 @@ public class OmdbServiceBean {
 		//productionElement.appendChild((Element) xml.getElementsByTagName("Country").item(0));
 		
 		List<String> countriesList = Arrays.asList(omdbMovie.getCountry().split("\\s*,\\s*"));
-		LOG.info("Found " + countriesList.size() + " countries");		
+		//LOG.info("Found " + countriesList.size() + " countries");		
 		Element countriesElement = xml.createElement("Countries");
 		for (String countryStr : countriesList) {						
 			Element countryElement = xml.createElement("Country");
