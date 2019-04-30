@@ -53,7 +53,7 @@
 			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue" loggingLevel="INFO" marker="CSVComplete" />
 		</route>
 
-		<route id="splitCsvFileRoute">		
+		<route id="splitCsvFileRoute">
 			<from uri="jms:movieCsvFile" />
 			<process ref="messageLogger" id="Log Inbound CSV File" />
 			<!-- streaming allows processing of one line at a time, but the CamelSplitSize is not available until the last line -->
@@ -70,15 +70,15 @@
 					</setHeader>
 					<!-- Do not route empty lines (contain only \n) -->
 					<choice>
-					<when>
-						<simple>${body.length} > 1</simple>						
-						<to uri="jms:movieCsvLine" />						
-					</when>
-					<otherwise>
-						<log message="CSV line is null or empty, no further route" />
-					</otherwise>
-				</choice>					
-				</filter>				
+						<when>
+							<simple>${body.length} > 1</simple>
+							<to uri="jms:movieCsvLine" />
+						</when>
+						<otherwise>
+							<log message="CSV line is null or empty, no further route" />
+						</otherwise>
+					</choice>
+				</filter>
 			</split>
 			<log message="CSV file split complete" loggingLevel="INFO" />
 		</route>
@@ -87,7 +87,7 @@
 			<from uri="jms:movieCsvLine" />
 			<process ref="messageLogger" id="Log Split CSV Row" />
 			<bean ref="movieCsvToXmlConverter" method="convertCsvToXml" />
-			<to uri="jms:movieXmlRow" />			
+			<to uri="jms:movieXmlRow" />
 		</route>
 
 		<route id="enrichRoute">
@@ -111,7 +111,7 @@
 			<process ref="messageLogger" id="Log Enriched XML Row" />
 			<doTry>
 				<to uri="validator:file:src/main/resources/XSD/MovieCMM.xsd" />
-				<to uri="jms:validatedMovieXmlRow" />
+				<to uri="direct:validatedMovieXmlRow" />
 				<doCatch>
 					<exception>org.apache.camel.ValidationException</exception>
 					<to uri="jms:validateXmlDeadLetter" />
@@ -119,14 +119,17 @@
 			</doTry>
 		</route>
 
-		<route id="invalidXmlRoute">
-			<from uri="jms:validateXmlDeadLetter" />
-			<process ref="messageLogger" id="Log Invalid XML Row" />
+		<route>
+			<from uri="direct:validatedMovieXmlRow" />
+			<process ref="messageLogger" id="Log Validated XML Row" />
+			<multicast>
+				<to uri="direct:validatedMovieAggregator" />
+				<to uri="direct:validatedMovieLanguageRouter" />
+			</multicast>
 		</route>
 
 		<route id="aggregationRoute">
-			<from uri="jms:validatedMovieXmlRow" />
-			<process ref="messageLogger" id="Log Validated XML Row" />
+			<from uri="direct:validatedMovieAggregator" />
 			<aggregate strategyRef="movieAggregationStrategy" completionInterval="60000" eagerCheckCompletion="true">
 				<correlationExpression>
 					<header>CamelFileName</header>
@@ -136,11 +139,39 @@
 			</aggregate>
 		</route>
 
-		<route id="languageRoute">
+		<route id="csvOutputRoute">
 			<from uri="direct:aggregatedMessage" />
-			<process ref="messageLogger" id="Log Aggregated Message" />
+			<process ref="messageLogger" id="Log Aggregated Movies" />			
 		</route>
 
+		<route id="languageRoute">
+			<from uri="direct:validatedMovieLanguageRouter" />
+			<choice>
+				<when>
+					<xpath>//Format/Language/text()='English'</xpath>
+					<to uri="jms:englishMovies" />
+				</when>
+				<otherwise>
+					<!-- <log message="CSV line is null or empty, no further route" /> -->
+					<to uri="jms:foreignMovies" />
+				</otherwise>
+			</choice>
+		</route>
+
+		<route id="englishRoute">
+			<from uri="jms:englishMovies" />
+			<process ref="messageLogger" id="Log English Movie" />
+		</route>
+
+		<route id="foreignRoute">
+			<from uri="jms:foreignMovies" />
+			<process ref="messageLogger" id="Log Foreign Movie" />
+		</route>
+
+		<route id="invalidXmlRoute">
+			<from uri="jms:validateXmlDeadLetter" />
+			<process ref="messageLogger" id="Log Invalid XML Row" />
+		</route>
 
 	</camelContext>
 

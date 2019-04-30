@@ -1,17 +1,9 @@
 # Movies Integration Project
 
-## ToDos
-- Enrich XML with fields from REST service [done]
-- Add XSD and validate CMM message (move failures to dead letter) [done]
-- add JSON validation and dead letter
-- add message # and aggregator [ip]
-- Clean up dependancies
-- Exception Handling
-- Use External ApacheMQ
-- Resend on fail
-- Unit tests
-- Deploy to FUSE ESB
-- update diagram
+##Build/Install
+
+	mvn clean install -U
+	(from parent)
 
 ## Execution
 
