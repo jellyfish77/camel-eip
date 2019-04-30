@@ -182,7 +182,8 @@ public class OmdbServiceBean {
 		for (String actorStr : actorsList) {
 			try {
 				LOG.info("Checking if actor '" + actorStr + "' exists...");
-				NodeList nodeList = (NodeList) xPath.compile("//Actor/Name[text()='" + actorStr + "']").evaluate(xml,
+				LOG.info("Using xpath: " + "//Actor/Name[text()='" + utils.Encoder.escapeXmlChars(actorStr) + "']");
+				NodeList nodeList = (NodeList) xPath.compile("//Actor/Name[text()='" + utils.Encoder.escapeXmlChars(actorStr) + "']").evaluate(xml,
 						XPathConstants.NODESET);
 				LOG.info("Actor '" + actorStr + "' already exists " + nodeList.getLength() + " times in xml doc");
 				// add actor node if the actor not already in xml doc

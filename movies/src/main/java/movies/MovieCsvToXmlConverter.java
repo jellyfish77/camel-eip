@@ -62,17 +62,17 @@ public class MovieCsvToXmlConverter {
 			sb.append("<Actors>");
 			sb.append("<Actor>");
 			sb.append("<Biling>1</Biling>");
-			sb.append("<Name>" + fields[10].toString().trim() + "</Name>");
+			sb.append("<Name>" + utils.Encoder.escapeXmlChars(fields[10]) + "</Name>");
 			sb.append("<FacebookLikes>" + fields[7].toString().trim() + "</FacebookLikes>");
 			sb.append("</Actor>");
 			sb.append("<Actor>");
 			sb.append("<Biling>2</Biling>");
-			sb.append("<Name>" + fields[6].toString().trim() + "</Name>");
+			sb.append("<Name>" + utils.Encoder.escapeXmlChars(fields[6]) + "</Name>");
 			sb.append("<FacebookLikes>" + fields[24].toString().trim() + "</FacebookLikes>");
 			sb.append("</Actor>");
 			sb.append("<Actor>");
 			sb.append("<Biling>3</Biling>");
-			sb.append("<Name>" + fields[14].toString().trim() + "</Name>");
+			sb.append("<Name>" + utils.Encoder.escapeXmlChars(fields[14]) + "</Name>");
 			sb.append("<FacebookLikes>" + fields[5].toString().trim() + "</FacebookLikes>");
 			sb.append("</Actor>");
 			sb.append("</Actors>");
@@ -107,5 +107,5 @@ public class MovieCsvToXmlConverter {
 	public String addRootNode(@Body String body) {
 		return "<Movies>" + body + "</Movies>";
 	}
-
+	
 }

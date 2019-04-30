@@ -75,7 +75,7 @@
 						<to uri="jms:movieCsvLine" />						
 					</when>
 					<otherwise>
-						<log message="CSV line is null or empty" />
+						<log message="CSV line is null or empty, no further route" />
 					</otherwise>
 				</choice>					
 				</filter>				
