@@ -1,10 +1,15 @@
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:simpleType name="NullOrInteger">
+					<xs:restriction base="xs:string">
+						<xs:pattern value="\d*|\s{0}" />
+					</xs:restriction>
+				</xs:simpleType>
 	<xs:element name="Movie">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element type="xs:string" name="Title"/>
-				<xs:element type="xs:string" name="ImdbId"/>
-				<xs:element type="xs:int" name="Gross"/>
+				<xs:element type="xs:string" name="Title"/>				
+				<xs:element type="xs:string" name="ImdbId"/>				
+				<xs:element type="NullOrInteger" name="Gross"/>
 				<xs:element name="Format">
 					<xs:complexType>
 						<xs:sequence>
@@ -26,8 +31,8 @@
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>
-							<xs:element type="xs:int" name="Budget"/>
-							<xs:element type="xs:short" name="Year"/>
+							<xs:element type="NullOrInteger" name="Budget"/>
+							<xs:element type="NullOrInteger" name="Year"/>
 							<xs:element type="xs:string" name="ReleaseDate"/>
 							<xs:element type="xs:string" name="DvdDate"/>
 							<xs:element type="xs:string" name="Website"/>
@@ -75,7 +80,7 @@
 				<xs:element name="Writers">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element type="xs:string" name="Writer"/>
+							<xs:element type="xs:string" maxOccurs="unbounded" minOccurs="0" name="Writer"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

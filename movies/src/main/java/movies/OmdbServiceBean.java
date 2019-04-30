@@ -88,9 +88,6 @@ public class OmdbServiceBean {
 
 		// append production info node
 		Element productionElement = xml.createElement("Production");
-		// productionElement.appendChild((Element)
-		// xml.getElementsByTagName("Country").item(0));
-
 		Element countriesElement = xml.createElement("Countries");
 		try {
 			if (omdbMovie.getCountry() != "") {
@@ -100,14 +97,13 @@ public class OmdbServiceBean {
 					Element countryElement = xml.createElement("Country");
 					countryElement.appendChild(xml.createTextNode(countryStr));
 					countriesElement.appendChild(countryElement);
-				}
-				productionElement.appendChild(countriesElement);
+				}				
 			} else {
 				LOG.info("No countries found for movie +'" + movieTitle + "'");
 			}
 		} catch (NullPointerException npe) {
 		}
-
+		productionElement.appendChild(countriesElement);		
 		productionElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));
 		productionElement.appendChild((Element) xml.getElementsByTagName("Budget").item(0)); //
 		productionElement.appendChild((Element) xml.getElementsByTagName("Year").item(0));
@@ -129,11 +125,19 @@ public class OmdbServiceBean {
 		formatElement.appendChild(typeElement);
 		formatElement.appendChild((Element) xml.getElementsByTagName("Color").item(0));
 		formatElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));
-		formatElement.appendChild((Element) xml.getElementsByTagName("AspectRatio").item(0));
+		formatElement.appendChild((Element) xml.getElementsByTagName("AspectRatio").item(0));		
+		Element runElement = xml.createElement("Runtime");
+		if (omdbMovie.getRuntime() != "") {
+			LOG.info("Setting Runtime to JSON Runtime");			
+			String runtimes[] = omdbMovie.getRuntime().split(" ", 2);
+			runElement.appendChild(xml.createTextNode(runtimes[0]));
+		} else {			
+			String dur = xml.getElementsByTagName("Duration").item(0).getTextContent();
+			LOG.info("Setting Runtime to Duration: " + dur);			
+			runElement.appendChild(xml.createTextNode(dur));
+		}
 		Element durElement = (Element) xml.getElementsByTagName("Duration").item(0);
 		durElement.getParentNode().removeChild(durElement);
-		Element runElement = xml.createElement("Runtime");
-		runElement.appendChild(xml.createTextNode(omdbMovie.getRuntime()));
 		formatElement.appendChild(runElement);
 		movieNode.insertBefore(formatElement, (Element) xml.getElementsByTagName("Production").item(0));
 
@@ -167,7 +171,7 @@ public class OmdbServiceBean {
 			writersElement.appendChild(writerElement);
 		}
 		movieNode.insertBefore(writersElement, (Element) xml.getElementsByTagName("NumReviews").item(0));
-
+				
 		// append ratings
 		Element ratingsElement = xml.createElement("Ratings");
 		try {
@@ -180,12 +184,14 @@ public class OmdbServiceBean {
 				ratingElement.appendChild(sourceElement);
 				ratingElement.appendChild(valueElement);
 				ratingsElement.appendChild(ratingElement);
-				movieNode.insertBefore(ratingsElement, (Element) xml.getElementsByTagName("Duration").item(0));
+				
 			}
 		} catch (NullPointerException npe) {
 			LOG.info("No ratings exist for movie '" + movieTitle + "'");
 		}
-
+		//movieNode.insertBefore(ratingsElement, (Element) xml.getElementsByTagName("Duration").item(0));
+		movieNode.appendChild(ratingsElement);
+		
 		// append actors (if not already present)
 		try {
 			if (omdbMovie.getActors() != "") {
