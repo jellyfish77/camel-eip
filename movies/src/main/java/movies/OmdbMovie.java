@@ -20,55 +20,55 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class OmdbMovie {
 
 	@JsonProperty("Title")
-	private String title;
+	private String title = "";
 	@JsonProperty("Year")
-	private String year;
+	private String year = "";
 	@JsonProperty("Rated")
-	private String rated;
+	private String rated= "";
 	@JsonProperty("Released")
-	private String released;
+	private String released= "";
 	@JsonProperty("Runtime")
-	private String runtime;
+	private String runtime= "";
 	@JsonProperty("Genre")
-	private String genre;
+	private String genre= "";
 	@JsonProperty("Director")
-	private String director;
+	private String director= "";
 	@JsonProperty("Writer")
-	private String writer;
+	private String writer= "";
 	@JsonProperty("Actors")
-	private String actors;
+	private String actors= "";
 	@JsonProperty("Plot")
-	private String plot;
+	private String plot= "";
 	@JsonProperty("Language")
-	private String language;
+	private String language= "";
 	@JsonProperty("Country")
-	private String country;
+	private String country= "";
 	@JsonProperty("Awards")
-	private String awards;
+	private String awards= "";
 	@JsonProperty("Poster")
-	private String poster;
+	private String poster= "";
 	@JsonProperty("Ratings")
 	private List<OmdbRating> ratings = null;
 	@JsonProperty("Metascore")
-	private String metascore;
+	private String metascore= "";
 	@JsonProperty("imdbRating")
-	private String imdbRating;
+	private String imdbRating= "";
 	@JsonProperty("imdbVotes")
-	private String imdbVotes;
+	private String imdbVotes= "";
 	@JsonProperty("imdbID")
-	private String imdbID;
+	private String imdbID= "";
 	@JsonProperty("Type")
-	private String type;
+	private String type= "";
 	@JsonProperty("DVD")
-	private String dVD;
+	private String dVD= "";
 	@JsonProperty("BoxOffice")
-	private String boxOffice;
+	private String boxOffice= "";
 	@JsonProperty("Production")
-	private String production;
+	private String production= "";
 	@JsonProperty("Website")
-	private String website;
+	private String website= "";
 	@JsonProperty("Response")
-	private String response;
+	private String response= "";
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
