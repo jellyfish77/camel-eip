@@ -166,12 +166,13 @@ Correlation Identifier
 Message Sequence
 
 ### Message Routing
-Pipes and Filters
-Content Based Router
+- Pipes and Filters
+- Content Based Router
 - Splitter: split csv file into 1 msg per row
-Aggregator
-Resequencer
-Message Broker
+- Aggregator
+- Resequencer
+- Message Broker
+- Multicast
 
 ### Message Transformation
 Message Translator

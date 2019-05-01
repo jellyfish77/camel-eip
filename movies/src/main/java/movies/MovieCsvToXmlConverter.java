@@ -20,7 +20,7 @@ public class MovieCsvToXmlConverter {
 		String[] fields = body.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"); // handle quotes as text-delimiter
 		// String numPosterFaces = ((fields[15].toString().trim() == "") ? "0" :
 		// fields[15].toString().trim());
-		LOG.info("CSV line: " + body);
+		//LOG.info("CSV line: " + body);
 		if (body==null || body.length() < 1) { 
 			LOG.info("CSV line is empty or null, length: " + body.length() + ", fields length: " + fields.length);
 			return null;
@@ -29,10 +29,10 @@ public class MovieCsvToXmlConverter {
 		try {
 			// sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			sb.append("<Movie>");
-			LOG.info("Title before URL encode: " + fields[11].toString());
+			//LOG.info("Title before URL encode: " + fields[11].toString());
 			sb.append("<Title>" + fields[11].toString().trim().replaceAll("\u00a0", "").replaceAll("^\"|\"$", "")
 					+ "</Title>");
-			LOG.info("Title after URL encode: " + fields[11].toString());
+			//LOG.info("Title after URL encode: " + fields[11].toString());
 			sb.append("<Gross>" + fields[8].toString().trim() + "</Gross>");
 			sb.append("<Genres>" + processValues(fields[9].toString().trim(), "|", "Genre") + "</Genres>");
 			sb.append("<Color>" + fields[0].toString().trim() + "</Color>");
@@ -84,8 +84,8 @@ public class MovieCsvToXmlConverter {
 			return null;
 		}
 
-		LOG.info("Converted '" + fields[11].toString().replaceAll("\u00a0", "").replaceAll("^\"|\"$", "").trim()
-				+ "' to XML");
+		//LOG.info("Converted '" + fields[11].toString().replaceAll("\u00a0", "").replaceAll("^\"|\"$", "").trim()
+		//		+ "' to XML");
 		return sb.toString();
 	}
 

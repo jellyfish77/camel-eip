@@ -18,6 +18,8 @@ package movies;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the aggregation strategy which is java code for <i>aggregating</i>
@@ -38,14 +40,17 @@ public class MovieAggregationStrategy implements AggregationStrategy {
      * @return the aggregated message.
      */
     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
-        // the first time there are no existing message and therefore
+    	Logger LOG = LoggerFactory.getLogger(MovieAggregationStrategy.class);
+
+    	i++;
+        LOG.info("Aggregating message #: " + i);
+        
+    	// the first time there are no existing message and therefore
         // the oldExchange is null. In these cases we just return
-        // the newExchange
-        if (oldExchange == null) {
+        // the newExchange    	
+    	if (oldExchange == null) {
             return newExchange;
-        }
-        i++;
-        System.out.println("Current message being aggregated: " + i);
+        }        
         // now we have both an existing message (oldExchange)
         // and a incoming message (newExchange)
         // we want to merge together.

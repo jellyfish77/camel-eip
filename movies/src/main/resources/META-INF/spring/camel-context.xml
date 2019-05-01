@@ -80,7 +80,7 @@
 					</choice>
 				</filter>
 			</split>
-			<log message="CSV file split complete" loggingLevel="INFO" />
+			<!-- <log message="CSV file split complete" loggingLevel="INFO" /> -->
 		</route>
 
 		<route id="convertCsvToXmlRoute">
@@ -136,14 +136,15 @@
 				</correlationExpression>
 				<bean ref="movieCsvToXmlConverter" method="addRootNode" />
 				<to uri="direct:aggregatedMessage" />
-			</aggregate>
+			</aggregate>			
 		</route>
 
 		<route id="psvTransformRoute">
 			<from uri="direct:aggregatedMessage" />
 			<process ref="messageLogger" id="Log Aggregated Movies" />
 			<to uri="xslt:file:src/main/resources/XSLT/MovieToPsv.xslt" />
-			<to uri="jms:psvFile" />		
+			<to uri="jms:psvFile" />
+			<log message="XSLT transform to PSV complete" loggingLevel="INFO" />		
 		</route>
 		
 		<route id="psvFileOutputRoute">

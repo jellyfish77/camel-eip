@@ -70,7 +70,7 @@ public class MessageLogger implements Processor {
 			//LOG.info("Exchange property values: " + props.values().toString());			
 			//LOG.info("CamelToEndpoint: " + exchange.getProperty("CamelToEndpoint").toString());			
 			//LOG.info("CamelToEndpoint: " + props.get("CamelToEndpoint"));
-			LOG.info("Route ID: " + messageHistory.get(messageHistory.size()-1).toString());
+			LOG.info("Message ID: " + exchange.getIn().getMessageId() + "; Length: " + exchange.getIn().getBody(String.class).length() + "; Route ID: " + messageHistory.get(messageHistory.size()-1).toString());
 			
 			conn.setAutoCommit(false);
 						
