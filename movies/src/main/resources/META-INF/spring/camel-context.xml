@@ -139,10 +139,18 @@
 			</aggregate>
 		</route>
 
-		<route id="csvOutputRoute">
+		<route id="psvTransformRoute">
 			<from uri="direct:aggregatedMessage" />
-			<process ref="messageLogger" id="Log Aggregated Movies" />			
+			<process ref="messageLogger" id="Log Aggregated Movies" />
+			<to uri="xslt:file:src/main/resources/XSLT/MovieToPsv.xslt" />
+			<to uri="jms:psvFile" />		
 		</route>
+		
+		<route id="psvFileOutputRoute">
+			<from uri="jms:psvFile" />
+			<process ref="messageLogger" id="Log Transformed PSV File" />
+			<to uri="file:src/data/output?fileName=${file:name.noext}.psv"/>
+		</route>	
 
 		<route id="languageRoute">
 			<from uri="direct:validatedMovieLanguageRouter" />
