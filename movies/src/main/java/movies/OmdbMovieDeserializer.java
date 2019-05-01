@@ -83,6 +83,13 @@ public class OmdbMovieDeserializer extends StdDeserializer<OmdbMovie> {
 	}
 	
 	private String getNodeValAsText(JsonNode node, String nodeName) {
-		return ((node.get(nodeName).asText()==null) ? "" : node.get(nodeName).asText());
+		try {
+			return ((node.get(nodeName).asText()==null) ? "" : node.get(nodeName).asText());
+		} catch (NullPointerException npe)
+		{
+			LOG.warn("Couln't find JSON node '" + nodeName + "', returning empty string");
+			return "";
+		}
+		
 	}
 }

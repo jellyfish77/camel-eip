@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //import javax.annotation.PostConstruct;
 
@@ -48,18 +50,31 @@ public class OmdbServiceBean {
 
 		// uri encode title and build url
 		// (http://www.omdbapi.com/?apikey=<key>&t=The+Crying+Game)
-		movieTitle = webservices.UniversalResourceIdentifer.encodeURIComponent(movieTitle);
+		//movieTitle = webservices.UniversalResourceIdentifer.encodeURIComponent(movieTitle);
 		// LOG.info("Movie title '" + movieTitle + "'");
 		// LOG.info("Headers: " + headers.toString());
 		// LOG.info("URL: " + headers.get("omdbUrl"));
-		String url = headers.get("OmdbUrl") + movieTitle;
+		// String url = headers.get("OmdbUrl") + movieTitle;
+
+		// get the imdb id from the imdblink from the input file
+		String imdbId = xml.getElementsByTagName("ImdbLink").item(0).getTextContent();
+
+		Pattern pattern = Pattern.compile("tt\\d{2,}[^\\/]");
+		Matcher matcher = pattern.matcher(imdbId);
+		if (matcher.find()) {
+			LOG.info("Matched imdb id for '" + movieTitle + "': " + matcher.group(0));
+			imdbId = matcher.group(0);
+		}
+
+		//String url = headers.get("OmdbUrl") + movieTitle;
+		String url = headers.get("OmdbUrl") + imdbId;
 		url = url.replaceAll("<key>", headers.get("OmdbKey").toString());
-		LOG.info("Enriching XML Movie Record using REST Service at URL \"" + url + "\"");
+		LOG.info("Enriching XML for '" + movieTitle + "' with JSON from service at: " + url);
 
 		// call REST service and save resultant JSON
 		String json = ClientBuilder.newClient().target(url).request().accept(MediaType.APPLICATION_JSON)
 				.get(String.class);
-		//LOG.info("HTTP GET Resp:" + json);
+		// LOG.info("HTTP GET Resp:" + json);
 
 		if (json.contains("Movie not found!")) { // if no data found
 			LOG.info("No data available for '" + movieTitle + "'");
@@ -97,13 +112,13 @@ public class OmdbServiceBean {
 					Element countryElement = xml.createElement("Country");
 					countryElement.appendChild(xml.createTextNode(countryStr));
 					countriesElement.appendChild(countryElement);
-				}				
+				}
 			} else {
-				//LOG.info("No countries found for movie +'" + movieTitle + "'");
+				// LOG.info("No countries found for movie +'" + movieTitle + "'");
 			}
 		} catch (NullPointerException npe) {
 		}
-		productionElement.appendChild(countriesElement);		
+		productionElement.appendChild(countriesElement);
 		productionElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));
 		productionElement.appendChild((Element) xml.getElementsByTagName("Budget").item(0)); //
 		productionElement.appendChild((Element) xml.getElementsByTagName("Year").item(0));
@@ -125,15 +140,15 @@ public class OmdbServiceBean {
 		formatElement.appendChild(typeElement);
 		formatElement.appendChild((Element) xml.getElementsByTagName("Color").item(0));
 		formatElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));
-		formatElement.appendChild((Element) xml.getElementsByTagName("AspectRatio").item(0));		
+		formatElement.appendChild((Element) xml.getElementsByTagName("AspectRatio").item(0));
 		Element runElement = xml.createElement("Runtime");
 		if (omdbMovie.getRuntime() != "") {
-			//LOG.info("Setting Runtime to JSON Runtime");			
+			// LOG.info("Setting Runtime to JSON Runtime");
 			String runtimes[] = omdbMovie.getRuntime().split(" ", 2);
 			runElement.appendChild(xml.createTextNode(runtimes[0]));
-		} else {			
+		} else {
 			String dur = xml.getElementsByTagName("Duration").item(0).getTextContent();
-			//LOG.info("Setting Runtime to Duration: " + dur);			
+			// LOG.info("Setting Runtime to Duration: " + dur);
 			runElement.appendChild(xml.createTextNode(dur));
 		}
 		Element durElement = (Element) xml.getElementsByTagName("Duration").item(0);
@@ -171,7 +186,7 @@ public class OmdbServiceBean {
 			writersElement.appendChild(writerElement);
 		}
 		movieNode.insertBefore(writersElement, (Element) xml.getElementsByTagName("NumReviews").item(0));
-				
+
 		// append ratings
 		Element ratingsElement = xml.createElement("Ratings");
 		try {
@@ -184,14 +199,15 @@ public class OmdbServiceBean {
 				ratingElement.appendChild(sourceElement);
 				ratingElement.appendChild(valueElement);
 				ratingsElement.appendChild(ratingElement);
-				
+
 			}
 		} catch (NullPointerException npe) {
-			//LOG.info("No ratings exist for movie '" + movieTitle + "'");
+			// LOG.info("No ratings exist for movie '" + movieTitle + "'");
 		}
-		//movieNode.insertBefore(ratingsElement, (Element) xml.getElementsByTagName("Duration").item(0));
+		// movieNode.insertBefore(ratingsElement, (Element)
+		// xml.getElementsByTagName("Duration").item(0));
 		movieNode.appendChild(ratingsElement);
-		
+
 		// append actors (if not already present)
 		try {
 			if (omdbMovie.getActors() != "") {
@@ -200,14 +216,15 @@ public class OmdbServiceBean {
 				// LOG.info("Found " + actorsList.size() + " writer(s)");
 				for (String actorStr : actorsList) {
 					try {
-						//LOG.info("Checking if actor '" + actorStr + "' exists...");
-						//LOG.info("Using xpath: " + "//Actor/Name[text()='" + utils.Encoder.escapeXmlChars(actorStr)
-						//		+ "']");
+						// LOG.info("Checking if actor '" + actorStr + "' exists...");
+						// LOG.info("Using xpath: " + "//Actor/Name[text()='" +
+						// utils.Encoder.escapeXmlChars(actorStr)
+						// + "']");
 						NodeList nodeList = (NodeList) xPath
 								.compile("//Actor/Name[text()='" + utils.Encoder.escapeXmlChars(actorStr) + "']")
 								.evaluate(xml, XPathConstants.NODESET);
-						//LOG.info("Actor '" + actorStr + "' already exists " + nodeList.getLength()
-						//		+ " times in xml doc");
+						// LOG.info("Actor '" + actorStr + "' already exists " + nodeList.getLength()
+						// + " times in xml doc");
 						// add actor node if the actor not already in xml doc
 						if (nodeList.getLength() == 0) {
 							Element actorElement = xml.createElement("Actor");
@@ -223,7 +240,7 @@ public class OmdbServiceBean {
 					}
 				}
 			} else {
-				//LOG.info("No actors found for movie '" + movieTitle + "'");
+				// LOG.info("No actors found for movie '" + movieTitle + "'");
 			}
 		} catch (NullPointerException npe) {
 		}
