@@ -1,9 +1,9 @@
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:simpleType name="NullOrInteger">
-					<xs:restriction base="xs:string">
-						<xs:pattern value="\d*|\s{0}" />
-					</xs:restriction>
-				</xs:simpleType>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\d*|\s{0}" />
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:element name="Movie">
 		<xs:complexType>
 			<xs:sequence>
@@ -73,7 +73,7 @@
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element type="xs:string" name="Name"/>
-							<xs:element type="xs:short" name="FacebookLikes"/>
+							<xs:element type="xs:int" name="FacebookLikes"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
@@ -96,7 +96,7 @@
 												<xs:sequence>
 													<xs:element type="xs:byte" name="Biling" minOccurs="0"/>
 													<xs:element type="xs:string" name="Name"/>
-													<xs:element type="xs:short" name="FacebookLikes" minOccurs="0"/>
+													<xs:element type="xs:int" name="FacebookLikes" minOccurs="0"/>
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
