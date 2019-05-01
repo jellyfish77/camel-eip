@@ -4,6 +4,11 @@
 			<xs:pattern value="\d*|\s{0}" />
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="NullOrFloat">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[-+]?[0-9]*\.?[0-9]+|\s{0}" />
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:element name="Movie">
 		<xs:complexType>
 			<xs:sequence>
@@ -16,7 +21,7 @@
 							<xs:element type="xs:string" name="Type"/>
 							<xs:element type="xs:string" name="Color"/>
 							<xs:element type="xs:string" name="Language"/>
-							<xs:element type="xs:float" name="AspectRatio"/>
+							<xs:element type="NullOrFloat" name="AspectRatio"/>
 							<xs:element type="xs:string" name="Runtime"/>
 						</xs:sequence>
 					</xs:complexType>
@@ -68,7 +73,7 @@
 				<xs:element type="xs:anyURI" name="ImdbLink"/>
 				<xs:element type="xs:string" name="Country"/>
 				<xs:element type="xs:int" name="FacebookLikes"/>
-				<xs:element type="xs:byte" name="NumPosterFaces"/>
+				<xs:element type="NullOrInteger" name="NumPosterFaces"/>
 				<xs:element name="Director">
 					<xs:complexType>
 						<xs:sequence>
