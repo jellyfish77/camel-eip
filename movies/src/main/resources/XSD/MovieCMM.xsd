@@ -38,8 +38,8 @@
 							</xs:element>
 							<xs:element type="NullOrInteger" name="Budget"/>
 							<xs:element type="NullOrInteger" name="Year"/>
-							<xs:element type="xs:string" name="ReleaseDate"/>
-							<xs:element type="xs:string" name="DvdDate"/>
+							<xs:element type="xs:date" name="ReleaseDate"/>
+							<xs:element type="xs:date" name="DvdDate"/>
 							<xs:element type="xs:string" name="Website"/>
 						</xs:sequence>
 					</xs:complexType>
