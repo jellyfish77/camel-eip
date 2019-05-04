@@ -13,6 +13,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.regex.*;
+
 public class Committer {
 
 	public Document commit(@Body Document xml, String driverClass, String connStr, String user, String password,
@@ -23,7 +25,7 @@ public class Committer {
 		//String query = "INSERT INTO `" + database + "`.`" + table + "`";
 		String query = "INSERT INTO `" + table + "`";
 
-		LOG.info("Invoked with: " + driverClass.replace("[", "").replace("]", "") + ", " + connStr + ", " + user + ", " + password);
+		//LOG.info("Invoked with: " + driverClass.replace("[", "").replace("]", "") + ", " + connStr + ", " + user + ", " + password);
 		LOG.info("Comitting movie '" + xml.getElementsByTagName("Field").item(0).getTextContent() + "'....");
 
 		// generate SQL statement
@@ -33,12 +35,12 @@ public class Committer {
 		String fields = genFieldList(nodeList);
 
 		query = query + " (" + fields + ") VALUES (" + placeHolders + ");";
-		LOG.info(query);
+		//LOG.info(query);
 
 		// commit statement
 		try {
 			String myUrl = connStr.replaceAll("<database>", database);
-			LOG.info("Conn: " + myUrl);
+			//LOG.info("Conn: " + myUrl);
 			Class.forName(driverClass.replace("[", "").replace("]", ""));
 			Connection conn = DriverManager.getConnection(myUrl, "root", "root");
 
@@ -48,10 +50,18 @@ public class Committer {
 
 			for (int i = 0; i < nodeList.getLength(); i++) {
 				Node node = nodeList.item(i);
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					st.setString(i+1, node.getTextContent());
+				if (node.getNodeType() == Node.ELEMENT_NODE) {					
+					String value = node.getTextContent();
+					
+					// if in DATE format remove trailing 'Z' (UTC indicator)					
+					if(Pattern.matches("^(\\d{4})-(\\d{2})-(\\d{2})Z$", value)) {
+						value = charRemoveAt(value, value.length()-1); 
+					}
+					
+					st.setString(i+1, value);
 				}
 			}
+			
 			LOG.info(st.toString());
 
 			st.addBatch();
@@ -81,7 +91,6 @@ public class Committer {
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node node = nodeList.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				// do something with the current element
 				Element e = (Element) node;
 				// LOG.info(e.getAttribute("name") + ": " + node.getTextContent());
 				fields = fields + e.getAttribute("name") + ", ";
@@ -99,5 +108,9 @@ public class Committer {
 		}
 
 		return plsHldrs.substring(0, plsHldrs.length() - 2);
+	}
+
+	private String charRemoveAt(String str, int p) {
+		return str.substring(0, p) + str.substring(p + 1);
 	}
 }
