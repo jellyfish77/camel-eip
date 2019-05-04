@@ -9,6 +9,7 @@
 
 	mvn camel:run
 	
+	mvn camel:run  2>&1 | tee terminal.log
 
 ## Unit Tests
 
