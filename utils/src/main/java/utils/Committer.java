@@ -22,10 +22,10 @@ public class Committer {
 
 		Logger LOG = LoggerFactory.getLogger(Committer.class);
 
-		//String query = "INSERT INTO `" + database + "`.`" + table + "`";
 		String query = "INSERT INTO `" + table + "`";
 
-		//LOG.info("Invoked with: " + driverClass.replace("[", "").replace("]", "") + ", " + connStr + ", " + user + ", " + password);
+		// LOG.info("Invoked with: " + driverClass.replace("[", "").replace("]", "") +
+		// ", " + connStr + ", " + user + ", " + password);
 		LOG.info("Comitting movie '" + xml.getElementsByTagName("Field").item(0).getTextContent() + "'....");
 
 		// generate SQL statement
@@ -35,12 +35,12 @@ public class Committer {
 		String fields = genFieldList(nodeList);
 
 		query = query + " (" + fields + ") VALUES (" + placeHolders + ");";
-		//LOG.info(query);
+		// LOG.info(query);
 
 		// commit statement
 		try {
 			String myUrl = connStr.replaceAll("<database>", database);
-			//LOG.info("Conn: " + myUrl);
+			// LOG.info("Conn: " + myUrl);
 			Class.forName(driverClass.replace("[", "").replace("]", ""));
 			Connection conn = DriverManager.getConnection(myUrl, "root", "root");
 
@@ -50,18 +50,18 @@ public class Committer {
 
 			for (int i = 0; i < nodeList.getLength(); i++) {
 				Node node = nodeList.item(i);
-				if (node.getNodeType() == Node.ELEMENT_NODE) {					
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
 					String value = node.getTextContent();
-					
-					// if in DATE format remove trailing 'Z' (UTC indicator)					
-					if(Pattern.matches("^(\\d{4})-(\\d{2})-(\\d{2})Z$", value)) {
-						value = charRemoveAt(value, value.length()-1); 
+
+					// if in DATE format remove trailing 'Z' (UTC indicator)
+					if (Pattern.matches("^(\\d{4})-(\\d{2})-(\\d{2})Z$", value)) {
+						value = charRemoveAt(value, value.length() - 1);
 					}
-					
-					st.setString(i+1, value);
+
+					st.setString(i + 1, value);
 				}
 			}
-			
+
 			LOG.info(st.toString());
 
 			st.addBatch();
@@ -83,6 +83,37 @@ public class Committer {
 		LOG.info("Finished comitting movie '" + xml.getElementsByTagName("Field").item(0).getTextContent() + "'");
 
 		return xml;
+	}
+
+	/*
+	 * Build sql statements for camel jdbc endpoint
+	 */
+	public String toSql(@Body Document xml, String table) {
+
+		Logger LOG = LoggerFactory.getLogger(Committer.class);
+
+		// generate SQL statement
+		String query = "INSERT INTO " + table;		
+		NodeList nodeList = xml.getElementsByTagName("Field");
+		String placeHolders = genPlaceholderList(nodeList.getLength());
+		String fields = genFieldList(nodeList);
+		query = query + " (" + fields + ") VALUES (";
+		
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				String value = node.getTextContent();
+				// if in DATE format remove trailing 'Z' (UTC indicator)
+				if (Pattern.matches("^(\\d{4})-(\\d{2})-(\\d{2})Z$", value)) {
+					value = charRemoveAt(value, value.length() - 1);
+				}
+				query = query + "'" + utils.Encoder.escapeMySQLChars(value) + "', ";
+			}
+		}
+		query = query.substring(0, query.length() - 2);		
+		query = query + ")";		
+		LOG.info(query);
+		return query;
 	}
 
 	private String genFieldList(NodeList nodeList) {

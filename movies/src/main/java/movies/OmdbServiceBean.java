@@ -129,21 +129,30 @@ public class OmdbServiceBean {
 		
 	    SimpleDateFormat dateInFormat = new SimpleDateFormat("dd MMM yyyy");
         SimpleDateFormat dateOutFormat = new SimpleDateFormat("yyyy-MM-dd");
-	    Date releaseDate;
-	    Date dvdDate;
+	    Date releaseDate = null;
+	    Date dvdDate = null;
 	    try {
 			releaseDate = dateInFormat.parse(omdbMovie.getReleased());
 			dvdDate = dateInFormat.parse(omdbMovie.getDVD());
 		} catch (ParseException e1) {
 			LOG.error("Could not parse date format!");
-			throw e1;
+			//throw e1;
 		}	    
 		
 		Element dateElement = xml.createElement("ReleaseDate");
-		dateElement.appendChild(xml.createTextNode(dateOutFormat.format(releaseDate) + "Z"));
+		if(releaseDate != null) {
+			dateElement.appendChild(xml.createTextNode(dateOutFormat.format(releaseDate) + "Z"));
+		} else	{
+			dateElement.appendChild(xml.createTextNode(""));
+		}
 		productionElement.appendChild(dateElement);
+				
 		Element dvdElement = xml.createElement("DvdDate");
-		dvdElement.appendChild(xml.createTextNode(dateOutFormat.format(dvdDate) + "Z"));
+		if(dvdDate != null) {
+			dvdElement.appendChild(xml.createTextNode(dateOutFormat.format(dvdDate) + "Z"));
+		} else {
+			dvdElement.appendChild(xml.createTextNode(""));
+		}
 		productionElement.appendChild(dvdElement);
 		Element websiteElement = xml.createElement("Website");
 		websiteElement.appendChild(xml.createTextNode(omdbMovie.getWebsite()));

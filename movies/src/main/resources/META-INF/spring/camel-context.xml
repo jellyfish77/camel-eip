@@ -7,11 +7,14 @@
 	ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under 
 	the License. -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:broker="http://activemq.apache.org/schema/core"
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans 
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        http://camel.apache.org/schema/spring 
-       http://camel.apache.org/schema/spring/camel-spring.xsd">
+       http://camel.apache.org/schema/spring/camel-spring.xsd
+       http://activemq.apache.org/schema/core 
+       http://activemq.apache.org/schema/core/activemq-core.xsd">
 
 	<bean id="jms" class="org.apache.camel.component.jms.JmsComponent">
 		<property name="connectionFactory">
@@ -45,18 +48,101 @@
 
 	<bean id="movieAggregationStrategy" class="movies.MovieAggregationStrategy" />
 
+	<!-- AMQ Transaction Management -->
+
+	<!-- setup Atomikos for XA transaction -->
+	<bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init"
+		destroy-method="close" depends-on="my-broker">
+		<!-- when close is called, should we force transactions to terminate or not? -->
+		<property name="forceShutdown" value="false" />
+	</bean>
+
+	<!-- this is some atomikos setup you must do -->
+	<bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp" depends-on="my-broker">
+		<property name="transactionTimeout" value="300" />
+	</bean>
+
+	<!-- this is some atomikos setup you must do -->
+	<bean id="connectionFactory" class="com.atomikos.jms.AtomikosConnectionFactoryBean" depends-on="my-broker">
+		<property name="uniqueResourceName" value="amq1" />
+		<property name="xaConnectionFactory" ref="jmsXaConnectionFactory" />
+	</bean>
+
+	<!-- this is the Spring JtaTransactionManager which under the hood uses Atomikos -->
+	<bean id="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"
+		depends-on="my-broker">
+		<property name="transactionManager" ref="atomikosTransactionManager" />
+		<property name="userTransaction" ref="atomikosUserTransaction" />
+	</bean>
+
+	<!-- Is the ConnectionFactory to connect to the JMS broker -->
+	<!-- notice how we must use the XA connection factory -->
+	<bean id="jmsXaConnectionFactory" class="org.apache.activemq.ActiveMQXAConnectionFactory" depends-on="my-broker">		
+		<property name="brokerURL" value="tcp://localhost:61616" />
+	</bean>
+
+	<!-- define the activemq Camel component so we can integrate with the AMQ broker below -->
+	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent" depends-on="my-broker">
+		<!-- must indicate that we use transacted acknowledge mode -->
+		<property name="transacted" value="true" />
+		<!-- refer to the transaction manager -->
+		<property name="transactionManager" ref="jtaTransactionManager" />
+		<property name="brokerURL" value="tcp://localhost:6616"/> 
+	</bean>
+
+	<!-- setup a local JMS Broker for testing purpose -->
+	<broker:broker id="my-broker" useJmx="false" persistent="false" brokerName="localhost">
+		<broker:transportConnectors>			
+			<broker:transportConnector uri="tcp://localhost:61616" />
+		</broker:transportConnectors>
+	</broker:broker>
+
+	<!-- -->
+
+	<!-- MySQL Transaction Management -->
+
+	<!-- the JTA transaction manager -->
+	<!-- <bean id="stagingJtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"> <property 
+		name="dataSource" ref="stagingDataSource" /> <property name="userTransaction" ref="atomikosUserTransaction"/> <property name="transactionManager" 
+		ref="stagingTransactionManager" /> </bean> -->
+
+	<bean id="required" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
+		<property name="transactionManager" ref="stagingTransactionManager" />
+		<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
+	</bean>
+
+	<!-- the XA transaction manager for staging datasource, which is a Spring JDBC TransactionManager -->
+	<bean id="stagingTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="stagingDataSource" />
+	</bean>
+
+	<!-- define the datasource to the staging database -->
+	<bean id="stagingDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost/staging" />
+		<property name="username" value="root" />
+		<property name="password" value="root" />
+	</bean>
+
+	<!-- -->
+
+	<!-- config for transaction propagation -->
+	<!-- <bean id="required" class="org.apache.camel.spring.spi.SpringTransactionPolicy"> <property name="transactionManager" 
+		ref="stagingJtaTransactionManager" /> <property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" /> </bean> -->
+
 	<!-- <bean id="uri" class="webservices.UniversalResourceIdentifer" /> -->
 
 	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true" trace="false">
 
 		<route id="inputCsvFileRoute">
 			<from uri="file:src/data/input?maxMessagesPerPoll=1" />
-			<to uri="jms:movieCsvFile" />
+			<to uri="activemq:movieCsvFile" />
 			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue" loggingLevel="INFO" marker="CSVComplete" />
 		</route>
 
 		<route id="splitCsvFileRoute">
-			<from uri="jms:movieCsvFile" />
+			<from uri="activemq:movieCsvFile" />
+			<transacted ref="required" />
 			<process ref="messageLogger" id="Log Inbound CSV File" />
 			<!-- streaming allows processing of one line at a time, but the CamelSplitSize is not available until the last line -->
 			<split streaming="false">
@@ -113,16 +199,16 @@
 			<process ref="messageLogger" id="Log Enriched XML Row" />
 			<doTry>
 				<to uri="validator:file:src/main/resources/XSD/MovieCMM.xsd" />
-				<to uri="jms:validatedMovieCmmRow" />
+				<to uri="activemq:validatedMovieCmmRow" />
 				<doCatch>
 					<exception>org.apache.camel.ValidationException</exception>
-					<to uri="jms:validateXmlDeadLetter" />
+					<to uri="activemq:validateXmlDeadLetter" />
 				</doCatch>
 			</doTry>
 		</route>
 
 		<route id="multicastCmmRowRoute">
-			<from uri="jms:validatedMovieCmmRow" />
+			<from uri="activemq:validatedMovieCmmRow" />
 			<process ref="messageLogger" id="Log Validated CMM Row" />
 			<multicast>
 				<to uri="direct:validatedMovieAggregator" />
@@ -138,20 +224,20 @@
 					<header>CamelFileName</header>
 				</correlationExpression>
 				<bean ref="movieCsvToXmlConverter" method="addRootNode" />
-				<to uri="jms:aggregatedMessage" />
+				<to uri="activemq:aggregatedMessage" />
 			</aggregate>
 		</route>
 
 		<route id="psvTransformRoute">
-			<from uri="jms:aggregatedMessage" />
+			<from uri="activemq:aggregatedMessage" />
 			<process ref="messageLogger" id="Log Aggregated Movies" />
 			<to uri="xslt:file:src/main/resources/XSLT/MovieToPsv.xslt" />
-			<to uri="jms:psvFile" />
+			<to uri="activemq:psvFile" />
 			<log message="XSLT transform to PSV complete" loggingLevel="INFO" />
 		</route>
 
 		<route id="psvFileOutputRoute">
-			<from uri="jms:psvFile" />
+			<from uri="activemq:psvFile" />
 			<process ref="messageLogger" id="Log Transformed PSV File" />
 			<to uri="file:src/data/output?fileName=${file:name.noext}.psv" />
 		</route>
@@ -176,15 +262,17 @@
 			<setHeader headerName="MysqlMoviesTable">
 				<simple>{{mysqlMoviesTable}}</simple>
 			</setHeader>
-			<to uri="xslt:file:src/main/resources/XSLT/MovieToCommitStatement.xslt" />			
-			<to uri="jms:commitDbPayload" />
+			<to uri="xslt:file:src/main/resources/XSLT/MovieToCommitStatement.xslt" />
+			<to uri="activemq:commitDbPayload" />
 		</route>
 
 		<route id="commitDbXmlPayload">
-			<from uri="jms:commitDbPayload" />			
+			<from uri="activemq:commitDbPayload" />
 			<process ref="messageLogger" id="Log DB Payload" />
-			<bean ref="committer"
-				method="commit(*, {{mysqlDriverClass}}, {{mysqlConn}} , {{mysqlUser}}, {{mysqlPassword}}, {{mysqlStagingDatabase}}, {{mysqlMoviesTable}})" />
+			<!-- <bean ref="committer"
+				method="commit(*, {{mysqlDriverClass}}, {{mysqlConn}} , {{mysqlUser}}, {{mysqlPassword}}, {{mysqlStagingDatabase}}, {{mysqlMoviesTable}})" /> -->
+			<bean ref="committer" method="toSql(*, {{mysqlMoviesTable}})"/>
+			<to uri="jdbc:stagingDataSource"/>
 		</route>
 
 		<route id="languageRoute">
@@ -192,27 +280,27 @@
 			<choice>
 				<when>
 					<xpath>//Format/Language/text()='English'</xpath>
-					<to uri="jms:englishMovies" />
+					<to uri="activemq:englishMovies" />
 				</when>
 				<otherwise>
 					<!-- <log message="CSV line is null or empty, no further route" /> -->
-					<to uri="jms:foreignMovies" />
+					<to uri="activemq:foreignMovies" />
 				</otherwise>
 			</choice>
 		</route>
 
 		<route id="englishRoute">
-			<from uri="jms:englishMovies" />
+			<from uri="activemq:englishMovies" />
 			<process ref="messageLogger" id="Log English Movie" />
 		</route>
 
 		<route id="foreignRoute">
-			<from uri="jms:foreignMovies" />
+			<from uri="activemq:foreignMovies" />
 			<process ref="messageLogger" id="Log Foreign Movie" />
 		</route>
 
 		<route id="invalidXmlRoute">
-			<from uri="jms:validateXmlDeadLetter" />
+			<from uri="activemq:validateXmlDeadLetter" />
 			<process ref="messageLogger" id="Log Invalid XML Row" />
 		</route>
 
