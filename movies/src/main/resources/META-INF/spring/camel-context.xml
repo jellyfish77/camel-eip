@@ -74,7 +74,7 @@
 					<choice>
 						<when>
 							<simple>${body.length} > 1</simple>
-							<to uri="jms:movieCsvLine" />
+							<to uri="direct:movieCsvLine" />
 						</when>
 						<otherwise>
 							<log message="CSV line is null or empty, no further route" />
@@ -86,14 +86,14 @@
 		</route>
 
 		<route id="convertCsvToXmlRoute">
-			<from uri="jms:movieCsvLine" />
+			<from uri="direct:movieCsvLine" />
 			<process ref="messageLogger" id="Log Split CSV Row" />
 			<bean ref="movieCsvToXmlConverter" method="convertCsvToXml" />
-			<to uri="jms:movieXmlRow" />
+			<to uri="direct:movieXmlRow" />
 		</route>
 
 		<route id="enrichRoute">
-			<from uri="jms:movieXmlRow" />
+			<from uri="direct:movieXmlRow" />
 			<process ref="messageLogger" id="Log Converted XML Row" />
 			<setHeader headerName="MovieTitle">
 				<xpath resultType="java.lang.String">/Movie/Title/text()</xpath>
@@ -113,7 +113,7 @@
 			<process ref="messageLogger" id="Log Enriched XML Row" />
 			<doTry>
 				<to uri="validator:file:src/main/resources/XSD/MovieCMM.xsd" />
-				<to uri="direct:validatedMovieXmlRow" />
+				<to uri="jms:validatedMovieCmmRow" />
 				<doCatch>
 					<exception>org.apache.camel.ValidationException</exception>
 					<to uri="jms:validateXmlDeadLetter" />
@@ -121,8 +121,8 @@
 			</doTry>
 		</route>
 
-		<route>
-			<from uri="direct:validatedMovieXmlRow" />
+		<route id="multicastCmmRowRoute">
+			<from uri="jms:validatedMovieCmmRow" />
 			<process ref="messageLogger" id="Log Validated CMM Row" />
 			<multicast>
 				<to uri="direct:validatedMovieAggregator" />
@@ -138,12 +138,12 @@
 					<header>CamelFileName</header>
 				</correlationExpression>
 				<bean ref="movieCsvToXmlConverter" method="addRootNode" />
-				<to uri="direct:aggregatedMessage" />
+				<to uri="jms:aggregatedMessage" />
 			</aggregate>
 		</route>
 
 		<route id="psvTransformRoute">
-			<from uri="direct:aggregatedMessage" />
+			<from uri="jms:aggregatedMessage" />
 			<process ref="messageLogger" id="Log Aggregated Movies" />
 			<to uri="xslt:file:src/main/resources/XSLT/MovieToPsv.xslt" />
 			<to uri="jms:psvFile" />
