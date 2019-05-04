@@ -140,10 +140,10 @@ public class OmdbServiceBean {
 		}	    
 		
 		Element dateElement = xml.createElement("ReleaseDate");
-		dateElement.appendChild(xml.createTextNode(dateOutFormat.format(releaseDate)));
+		dateElement.appendChild(xml.createTextNode(dateOutFormat.format(releaseDate) + "Z"));
 		productionElement.appendChild(dateElement);
 		Element dvdElement = xml.createElement("DvdDate");
-		dvdElement.appendChild(xml.createTextNode(dateOutFormat.format(dvdDate)));
+		dvdElement.appendChild(xml.createTextNode(dateOutFormat.format(dvdDate) + "Z"));
 		productionElement.appendChild(dvdElement);
 		Element websiteElement = xml.createElement("Website");
 		websiteElement.appendChild(xml.createTextNode(omdbMovie.getWebsite()));
