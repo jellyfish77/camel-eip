@@ -25,6 +25,8 @@
 
 	<bean id="messageLogger" class="loggers.MessageLogger" />
 
+	<bean id="committer" class="utils.Committer" />
+
 	<!-- <bean id="uri" class="webservices.UniversalResourceIdentifier" /> -->
 
 	<!-- <bean id="movieCsvToXMLProcessor" class="movies.MovieCsvToXMLProcessor" /> -->
@@ -121,10 +123,11 @@
 
 		<route>
 			<from uri="direct:validatedMovieXmlRow" />
-			<process ref="messageLogger" id="Log Validated XML Row" />
+			<process ref="messageLogger" id="Log Validated CMM Row" />
 			<multicast>
 				<to uri="direct:validatedMovieAggregator" />
 				<to uri="direct:validatedMovieLanguageRouter" />
+				<to uri="direct:validatedMovieDbCommitter" />
 			</multicast>
 		</route>
 
@@ -136,7 +139,7 @@
 				</correlationExpression>
 				<bean ref="movieCsvToXmlConverter" method="addRootNode" />
 				<to uri="direct:aggregatedMessage" />
-			</aggregate>			
+			</aggregate>
 		</route>
 
 		<route id="psvTransformRoute">
@@ -144,14 +147,45 @@
 			<process ref="messageLogger" id="Log Aggregated Movies" />
 			<to uri="xslt:file:src/main/resources/XSLT/MovieToPsv.xslt" />
 			<to uri="jms:psvFile" />
-			<log message="XSLT transform to PSV complete" loggingLevel="INFO" />		
+			<log message="XSLT transform to PSV complete" loggingLevel="INFO" />
 		</route>
-		
+
 		<route id="psvFileOutputRoute">
 			<from uri="jms:psvFile" />
 			<process ref="messageLogger" id="Log Transformed PSV File" />
-			<to uri="file:src/data/output?fileName=${file:name.noext}.psv"/>
-		</route>	
+			<to uri="file:src/data/output?fileName=${file:name.noext}.psv" />
+		</route>
+
+		<route id="createDbXmlPayload">
+			<from uri="direct:validatedMovieDbCommitter" />
+			<setHeader headerName="MysqlConn">
+				<simple>{{mysqlConn}}</simple>
+			</setHeader>
+			<setHeader headerName="MysqlClass">
+				<simple>{{mysqlDriverClass}}</simple>
+			</setHeader>
+			<setHeader headerName="MysqlUser">
+				<simple>{{mysqlUser}}</simple>
+			</setHeader>
+			<setHeader headerName="MysqlPassword">
+				<simple>{{mysqlPassword}}</simple>
+			</setHeader>
+			<setHeader headerName="MysqlStagingDatabase">
+				<simple>{{mysqlStagingDatabase}}</simple>
+			</setHeader>
+			<setHeader headerName="MysqlMoviesTable">
+				<simple>{{mysqlMoviesTable}}</simple>
+			</setHeader>
+			<to uri="xslt:file:src/main/resources/XSLT/MovieToCommitStatement.xslt" />			
+			<to uri="jms:commitDbPayload" />
+		</route>
+
+		<route id="commitDbXmlPayload">
+			<from uri="jms:commitDbPayload" />			
+			<process ref="messageLogger" id="Log DB Payload" />
+			<bean ref="committer"
+				method="commit(*, {{mysqlDriverClass}}, {{mysqlConn}} , {{mysqlUser}}, {{mysqlPassword}}, {{mysqlStagingDatabase}}, {{mysqlMoviesTable}})" />
+		</route>
 
 		<route id="languageRoute">
 			<from uri="direct:validatedMovieLanguageRouter" />
