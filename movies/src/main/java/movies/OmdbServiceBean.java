@@ -1,7 +1,10 @@
 package movies;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -15,6 +18,7 @@ import org.apache.camel.language.XPath;
 import org.apache.commons.lang.ObjectUtils.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.WeakReferenceMonitor.ReleaseListener;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,7 +43,7 @@ public class OmdbServiceBean {
 
 	// Enrich XML with addtional data from JSON web service query
 	public Document enrichMovie(@Headers Map<String, Object> headers, @Body Document xml,
-			@XPath("/Movie/Title/text()") String movieTitle) {
+			@XPath("/Movie/Title/text()") String movieTitle) throws ParseException {
 
 		Logger LOG = LoggerFactory.getLogger(OmdbServiceBean.class);
 		OmdbMovie omdbMovie = null;
@@ -122,11 +126,24 @@ public class OmdbServiceBean {
 		productionElement.appendChild((Element) xml.getElementsByTagName("Language").item(0));
 		productionElement.appendChild((Element) xml.getElementsByTagName("Budget").item(0)); //
 		productionElement.appendChild((Element) xml.getElementsByTagName("Year").item(0));
+		
+	    SimpleDateFormat dateInFormat = new SimpleDateFormat("dd MMM yyyy");
+        SimpleDateFormat dateOutFormat = new SimpleDateFormat("yyyy-MM-dd");
+	    Date releaseDate;
+	    Date dvdDate;
+	    try {
+			releaseDate = dateInFormat.parse(omdbMovie.getReleased());
+			dvdDate = dateInFormat.parse(omdbMovie.getDVD());
+		} catch (ParseException e1) {
+			LOG.error("Could not parse date format!");
+			throw e1;
+		}	    
+		
 		Element dateElement = xml.createElement("ReleaseDate");
-		dateElement.appendChild(xml.createTextNode(omdbMovie.getReleased()));
+		dateElement.appendChild(xml.createTextNode(dateOutFormat.format(releaseDate)));
 		productionElement.appendChild(dateElement);
 		Element dvdElement = xml.createElement("DvdDate");
-		dvdElement.appendChild(xml.createTextNode(omdbMovie.getDVD()));
+		dvdElement.appendChild(xml.createTextNode(dateOutFormat.format(dvdDate)));
 		productionElement.appendChild(dvdElement);
 		Element websiteElement = xml.createElement("Website");
 		websiteElement.appendChild(xml.createTextNode(omdbMovie.getWebsite()));
