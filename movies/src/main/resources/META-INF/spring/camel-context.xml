@@ -135,7 +135,7 @@
 	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true" trace="false">
 
 		<route id="inputCsvFileRoute">
-			<from uri="file:src/data/input?maxMessagesPerPoll=1" />
+			<from uri="file:src/data/input?preMove=.inprocess&amp;move=.camel&amp;runLoggingLevel=TRACE&amp;maxMessagesPerPoll=1&amp;idempotent=true&amp;readLock=changed" />
 			<to uri="activemq:movieCsvFile" />
 			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue" loggingLevel="INFO" marker="CSVComplete" />
 		</route>
@@ -203,6 +203,7 @@
 				<doCatch>
 					<exception>org.apache.camel.ValidationException</exception>
 					<to uri="activemq:movieCmmRowDeadLetter" />
+					<process ref="messageLogger" id="Log Invalid XML Row" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -299,10 +300,10 @@
 			<process ref="messageLogger" id="Log Foreign Movie" />
 		</route>
 
-		<route id="invalidXmlRoute">
+		<!-- <route id="invalidXmlRoute">
 			<from uri="activemq:movieCmmRowDeadLetter" />
 			<process ref="messageLogger" id="Log Invalid XML Row" />
-		</route>
+		</route> -->
 
 	</camelContext>
 
