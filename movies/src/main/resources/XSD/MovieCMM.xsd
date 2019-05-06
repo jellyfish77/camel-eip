@@ -83,13 +83,13 @@
 				<xs:element type="xs:string" name="Rating"/>
 				<xs:element type="xs:anyURI" name="ImdbLink"/>
 				<xs:element type="xs:string" name="Country"/>
-				<xs:element type="xs:int" name="FacebookLikes"/>
+				<xs:element type="NullOrInteger" name="FacebookLikes"/>
 				<xs:element type="NullOrInteger" name="NumPosterFaces"/>
 				<xs:element name="Director">
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element type="xs:string" name="Name"/>
-							<xs:element type="xs:int" name="FacebookLikes"/>
+							<xs:element type="NullOrInteger" name="FacebookLikes"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
