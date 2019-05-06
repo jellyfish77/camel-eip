@@ -202,7 +202,7 @@
 				<to uri="activemq:validatedMovieCmmRow" />
 				<doCatch>
 					<exception>org.apache.camel.ValidationException</exception>
-					<to uri="activemq:validateXmlDeadLetter" />
+					<to uri="activemq:movieCmmRowDeadLetter" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -224,12 +224,12 @@
 					<header>CamelFileName</header>
 				</correlationExpression>
 				<bean ref="movieCsvToXmlConverter" method="addRootNode" />
-				<to uri="activemq:aggregatedMessage" />
+				<to uri="activemq:aggregatedValidatedCmmRows" />
 			</aggregate>
 		</route>
 
 		<route id="psvTransformRoute">
-			<from uri="activemq:aggregatedMessage" />
+			<from uri="activemq:aggregatedValidatedCmmRows" />
 			<process ref="messageLogger" id="Log Aggregated Movies" />
 			<to uri="xslt:file:src/main/resources/XSLT/MovieToPsv.xslt" />
 			<to uri="activemq:psvFile" />
@@ -300,7 +300,7 @@
 		</route>
 
 		<route id="invalidXmlRoute">
-			<from uri="activemq:validateXmlDeadLetter" />
+			<from uri="activemq:movieCmmRowDeadLetter" />
 			<process ref="messageLogger" id="Log Invalid XML Row" />
 		</route>
 
