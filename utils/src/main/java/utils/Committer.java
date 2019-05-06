@@ -102,12 +102,18 @@ public class Committer {
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node node = nodeList.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				String value = node.getTextContent();
-				// if in DATE format remove trailing 'Z' (UTC indicator)
-				if (Pattern.matches("^(\\d{4})-(\\d{2})-(\\d{2})Z$", value)) {
-					value = charRemoveAt(value, value.length() - 1);
+				String value = node.getTextContent();				
+				// if empty string
+				if (value.length() == 0) {
+					query = query + "null, ";
+				// if non-empty string
+				} else {				
+					// if in DATE format remove trailing 'Z' (UTC indicator)
+					if (Pattern.matches("^(\\d{4})-(\\d{2})-(\\d{2})Z$", value)) {
+						value = charRemoveAt(value, value.length() - 1);
+					}
+					query = query + "'" + utils.Encoder.escapeMySQLChars(value) + "', ";
 				}
-				query = query + "'" + utils.Encoder.escapeMySQLChars(value) + "', ";
 			}
 		}
 		query = query.substring(0, query.length() - 2);		
