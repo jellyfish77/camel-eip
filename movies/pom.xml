@@ -102,6 +102,14 @@
 			<artifactId>activemq-all</artifactId>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.activemq/activemq-camel -->
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-camel</artifactId>
+			<version>5.15.9</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>com.github.jellyfish77.camel-eip</groupId>
 			<artifactId>utils</artifactId>
