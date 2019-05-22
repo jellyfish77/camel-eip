@@ -1,17 +1,51 @@
 # Movies Integration Project
 
-## Build/Install
+## Commands
+
+### Build/Install
 
 	mvn clean install -U
 	(from parent)
 
-## Execution
+### Execution
 
 	mvn camel:run
 	
-	mvn camel:run  2>&1 | tee terminal.log
+	mvn camel:run  2>&1 | tee run.log
+	
+Skip Unit Tests:
 
-## Unit Tests
+	mvn camel:run -Dmaven.test.skip=true 2>&1 | tee run.log
+
+### Dependancies
+
+
+
+### Unit Tests
+
+	mvn test -Dtest=CsvFileToCmmTxTest 2>&1 | tee CsvFileToCmmTxTest.log
+
+### ActiveMQ
+	
+	activemq stop && activemq start
+
+### Other
+
+Find all code containing test cases:
+	
+	grep -lir --include \*.java 'CamelSpringTestSupport'
+
+Get files with multiple matches:
+
+	grep -lir --include \*.java 'CamelSpringTestSupport' | grep -lir --include \*.java 'AbstractXmlApplicationContext'
+
+Copy files to path:
+
+	grep -lir --include \*.java 'CamelSpringTestSupport' | grep -lir --include \*.java 'AbstractXmlApplicationContext' | grep -lir --include \*.java 'activemq' | xargs cp -t /home/otto/temp/camel_tests/spring/activemq
+
+Get # files matching by piping result to word count program:
+	
+	 | wc -l
 
 
 ## Operation
