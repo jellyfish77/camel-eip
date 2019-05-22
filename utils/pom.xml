@@ -13,6 +13,11 @@
     <packaging>jar</packaging>
     <version>1.0.0</version>
 
+
+	<properties>
+		<jolokia-version>2.0.0-M3</jolokia-version>
+	</properties>
+
   <dependencies>
 
     <dependency>
@@ -30,21 +35,37 @@
       <artifactId>activemq-all</artifactId>
     </dependency>
     
+    <!--
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
+    -->
     
+    <!--
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
     </dependency>
+    -->
     
     <dependency>
 		<groupId>mysql</groupId>
 		<artifactId>mysql-connector-java</artifactId>
 		<version>5.1.17</version>
 		<type>jar</type>
+	</dependency>
+		
+	<!-- 
+	Jolokia is an agent based approach to JMX that uses JSON over HTTP
+	Jolokia is a web app that exposes the JMX stats of the JVM that it’s running inside of over HTTP via REST/JSON
+	The Java client library provides access to the Jolokia agent from within Java.
+	ActiveMQ includes Jolokia since 5.8
+	-->
+	<dependency>
+	    <groupId>org.jolokia</groupId>
+	    <artifactId>jolokia-client-java</artifactId>
+	    <version>${jolokia-version}</version>
 	</dependency>
     
   </dependencies>
