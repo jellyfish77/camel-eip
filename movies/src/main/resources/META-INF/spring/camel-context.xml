@@ -30,6 +30,7 @@
 
 	<bean id="omdbService" class="movies.OmdbServiceBean" />
 
+	<!-- Camel Properties component -->
 	<bean id="properties" class="org.apache.camel.component.properties.PropertiesComponent">
 		<property name="location" value="classpath:META-INF/spring/camel-config.properties" />
 	</bean>
@@ -39,40 +40,41 @@
 	<!-- Active MQ Config -->
 
 	<!-- ActiveMQ connection factory -->
-    <bean id="poolConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" init-method="start" destroy-method="stop">
-        <property name="maxConnections" value="8"/>
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    </bean>
+	<bean id="poolConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" init-method="start"
+		destroy-method="stop">
+		<property name="maxConnections" value="8" />
+		<property name="connectionFactory" ref="jmsConnectionFactory" />
+	</bean>
 
-    <bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL" value="tcp://localhost:6616"/>
-    </bean>
+	<bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="tcp://localhost:6616" />
+	</bean>
 
-    <!-- Spring JMX TX manager -->
-    <bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
-        <property name="connectionFactory" ref="poolConnectionFactory"/>
-    </bean>
+	<!-- Spring JMX TX manager -->
+	<bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
+		<property name="connectionFactory" ref="poolConnectionFactory" />
+	</bean>
 
-    <!-- Policy for required -->
-    <bean id="PROPAGATION_REQUIRED" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
-        <property name="transactionManager" ref="jmsTransactionManager"/>
-    </bean>
+	<!-- Policy for required -->
+	<bean id="PROPAGATION_REQUIRED" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
+		<property name="transactionManager" ref="jmsTransactionManager" />
+	</bean>
 
-    <!-- Jms configuration -->
-    <bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
-        <property name="connectionFactory" ref="poolConnectionFactory"/>
-        <property name="transactionManager" ref="jmsTransactionManager"/>
-        <property name="transacted" value="true"/>
-        <property name="concurrentConsumers" value="1"/>
-    </bean>
+	<!-- Jms configuration -->
+	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+		<property name="connectionFactory" ref="poolConnectionFactory" />
+		<property name="transactionManager" ref="jmsTransactionManager" />
+		<property name="transacted" value="true" />
+		<property name="concurrentConsumers" value="1" />
+	</bean>
 
-    <!-- ActiveMQ component to be used in Camel -->
-    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-        <property name="connectionFactory" ref="poolConnectionFactory"/>
-        <property name="configuration" ref="jmsConfig"/>
-    </bean>
-    
-    <!-- End Active MQ Config -->	
+	<!-- ActiveMQ component to be used in Camel -->
+	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+		<property name="connectionFactory" ref="poolConnectionFactory" />
+		<property name="configuration" ref="jmsConfig" />
+	</bean>
+
+	<!-- End Active MQ Config -->
 
 	<!-- MySQL Conn -->
 
@@ -86,8 +88,35 @@
 
 	<!-- End MySQL Conn -->
 
-	<camelContext xmlns="http://camel.apache.org/schema/spring" useMDCLogging="true" trace="false">
+	<camelContext xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="defaultEH"
+		useMDCLogging="true" trace="false">
 
+		<!-- default error handler: retry on exceptions propagated back to the channels between nodes in the routes -->
+		<!-- by default there is no re-delivery, and exceptions are propagated back to the caller -->
+		<!-- handles any uncaught exception -->
+		<errorHandler id="defaultEH" redeliveryPolicyRef="defaultPolicy" type="DefaultErrorHandler" />
+
+		<errorHandler id="transEH" type="TransactionErrorHandler" rollbackLoggingLevel="DEBUG" >
+			<redeliveryPolicy maximumRedeliveries="1" retryAttemptedLogLevel="DEBUG" backOffMultiplier="2"
+				useExponentialBackOff="true" />
+		</errorHandler>
+
+		<!-- and the re-delivery policy is a profile where we can configure it -->
+		<redeliveryPolicyProfile id="defaultPolicy" maximumRedeliveries="3" retryAttemptedLogLevel="WARN"
+			redeliveryDelay="1000" maximumRedeliveryDelay="10000" backOffMultiplier="2" useExponentialBackOff="true" />		
+
+		<!-- handle specific exception -->
+		<onException redeliveryPolicyRef="defaultPolicy">
+			<exception>java.net.ConnectException</exception>
+			<handled>
+				<constant>false</constant>
+			</handled>
+			<log message="Delivery failed [onException: java.net.ConnectException]" />
+			<!-- and important to mark the transaction to still rollback even if we handled the exception -->
+			<!-- this must be done as the last step in onException -->
+			<rollback markRollbackOnly="true" />
+		</onException>		
+		
 		<route id="inputCsvFileRoute">
 			<from
 				uri="file:src/data/input?preMove=.inprocess&amp;move=.camel&amp;runLoggingLevel=TRACE&amp;maxMessagesPerPoll=1&amp;idempotent=true&amp;readLock=changed" />
@@ -95,9 +124,12 @@
 			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue" loggingLevel="INFO" marker="CSVComplete" />
 		</route>
 
-		<route id="splitCsvFileRoute">
+		<route id="splitCsvFileRoute" errorHandlerRef="transEH">
 			<from uri="activemq:queue:movieCsvFile" />
 			<transacted />
+			<log
+				message="Read CSV file from queue [JMSXDeliveryCount=${header.JMSXDeliveryCount}; JMSRedelivered=${header.JMSRedelivered}]"
+				loggingLevel="INFO" />
 			<process ref="messageLogger" id="Log Inbound CSV File" />
 			<!-- streaming allows processing of one line at a time, but the CamelSplitSize is not available until the last line -->
 			<split streaming="false">
@@ -157,7 +189,7 @@
 				<to uri="activemq:queue:validatedMovieCmmRecord" />
 				<doCatch>
 					<exception>org.apache.camel.ValidationException</exception>
-					<to uri="activemq:queue:movieCmmRowDeadLetter" />
+					<to uri="activemq:queue:movieCmmRecordDeadLetter" />
 					<process ref="messageLogger" id="Log Invalid XML Row" />
 				</doCatch>
 			</doTry>
@@ -224,7 +256,7 @@
 
 		<route id="commitDbXmlPayload">
 			<from uri="activemq:queue:commitDbPayload" />
-			<process ref="messageLogger" id="Log DB Payload" />			
+			<process ref="messageLogger" id="Log DB Payload" />
 			<bean ref="committer" method="toSql(*, {{mysqlMoviesTable}})" />
 			<to uri="jdbc:stagingDataSource" />
 		</route>
@@ -252,7 +284,7 @@
 			<from uri="activemq:queue:foreignMovies" />
 			<process ref="messageLogger" id="Log Foreign Movie" />
 		</route>
-		
+
 	</camelContext>
 
 
