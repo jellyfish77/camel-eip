@@ -27,7 +27,7 @@ Skip Unit Tests:
 
 ### Unit Tests
 
-	mvn test -Dtest=CsvFileToCmmTxTest 2>&1 | tee CsvFileToCmmTxTest.log	
+	mvn test -Dtest=IntegrationTests 2>&1 | tee IntegrationTests.log	
 	mvn test -Dtest=SplitCsvRouteMockTests#testSplitCsvWithMock 2>&1 | tee testSplitCsvWithMock.log
 	mvn test -Dtest=SplitCsvRouteMockTests#testSplitCsvWithMockAndSkip 2>&1 | tee testSplitCsvWithMockAndSkip.log
 
