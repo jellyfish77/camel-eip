@@ -123,14 +123,21 @@
 			<to uri="activemq:queue:movieCsvFile" />
 			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue" loggingLevel="INFO" marker="CSVComplete" />
 		</route>
-
-		<route id="splitCsvFileRoute" errorHandlerRef="transEH">
+		
+		<route id="getCsvFileFromQueue" errorHandlerRef="transEH">
 			<from uri="activemq:queue:movieCsvFile" />
-			<transacted />
+			<transacted />			
 			<log
 				message="Read CSV file from queue [JMSXDeliveryCount=${header.JMSXDeliveryCount}; JMSRedelivered=${header.JMSRedelivered}]"
 				loggingLevel="INFO" />
-			<process ref="messageLogger" id="Log Inbound CSV File" />
+			<process ref="messageLogger" id="Log CSV File read from Queue" />
+			<to uri="direct:movieCsvFile" />
+		</route>
+
+		<route id="splitCsvFileRoute" >
+			<from uri="direct:movieCsvFile" />			
+			<log
+				message="Splitting file into CSV lines..."	loggingLevel="INFO" />			
 			<!-- streaming allows processing of one line at a time, but the CamelSplitSize is not available until the last line -->
 			<split streaming="false">
 				<tokenize token="\n" />
