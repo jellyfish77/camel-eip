@@ -47,7 +47,8 @@
 	</bean>
 
 	<bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-		<property name="brokerURL" value="tcp://localhost:6616" />
+		<property name="brokerURL"
+			value="tcp://localhost:6616?jms.redeliveryPolicy.maximumRedeliveries=2&amp;jms.redeliveryPolicy.redeliveryDelay=5000" />
 	</bean>
 
 	<!-- Spring JMX TX manager -->
@@ -65,7 +66,7 @@
 		<property name="connectionFactory" ref="poolConnectionFactory" />
 		<property name="transactionManager" ref="jmsTransactionManager" />
 		<property name="transacted" value="true" />
-		<property name="concurrentConsumers" value="1" />
+		<property name="concurrentConsumers" value="10" />
 	</bean>
 
 	<!-- ActiveMQ component to be used in Camel -->
@@ -96,14 +97,10 @@
 		<!-- handles any uncaught exception -->
 		<errorHandler id="defaultEH" redeliveryPolicyRef="defaultPolicy" type="DefaultErrorHandler" />
 
-		<errorHandler id="transEH" type="TransactionErrorHandler" rollbackLoggingLevel="DEBUG" >
-			<redeliveryPolicy maximumRedeliveries="1" retryAttemptedLogLevel="DEBUG" backOffMultiplier="2"
-				useExponentialBackOff="true" />
-		</errorHandler>
-
 		<!-- and the re-delivery policy is a profile where we can configure it -->
-		<redeliveryPolicyProfile id="defaultPolicy" maximumRedeliveries="3" retryAttemptedLogLevel="WARN"
-			redeliveryDelay="1000" maximumRedeliveryDelay="10000" backOffMultiplier="2" useExponentialBackOff="true" />		
+		<redeliveryPolicyProfile id="defaultPolicy" maximumRedeliveries="2"
+			retryAttemptedLogLevel="WARN" redeliveryDelay="1000" maximumRedeliveryDelay="10000" backOffMultiplier="4"
+			useExponentialBackOff="true" />
 
 		<!-- handle specific exception -->
 		<onException redeliveryPolicyRef="defaultPolicy">
@@ -115,18 +112,18 @@
 			<!-- and important to mark the transaction to still rollback even if we handled the exception -->
 			<!-- this must be done as the last step in onException -->
 			<rollback markRollbackOnly="true" />
-		</onException>		
-		
+		</onException>
+
 		<route id="inputCsvFileRoute">
 			<from
 				uri="file:src/data/input?preMove=.inprocess&amp;move=.camel&amp;runLoggingLevel=TRACE&amp;maxMessagesPerPoll=1&amp;idempotent=true&amp;readLock=changed" />
 			<to uri="activemq:queue:movieCsvFile" />
 			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue" loggingLevel="INFO" marker="CSVComplete" />
 		</route>
-		
-		<route id="getCsvFileFromQueue" errorHandlerRef="transEH">
+
+		<route id="getCsvFileFromQueue" >
 			<from uri="activemq:queue:movieCsvFile" />
-			<transacted />			
+			<transacted />
 			<log
 				message="Read CSV file from queue [JMSXDeliveryCount=${header.JMSXDeliveryCount}; JMSRedelivered=${header.JMSRedelivered}]"
 				loggingLevel="INFO" />
@@ -134,10 +131,9 @@
 			<to uri="direct:movieCsvFile" />
 		</route>
 
-		<route id="splitCsvFileRoute" >
-			<from uri="direct:movieCsvFile" />			
-			<log
-				message="Splitting file into CSV lines..."	loggingLevel="INFO" />			
+		<route id="splitCsvFileRoute">
+			<from uri="direct:movieCsvFile" />
+			<log message="Splitting file into CSV lines..." loggingLevel="INFO" />
 			<!-- streaming allows processing of one line at a time, but the CamelSplitSize is not available until the last line -->
 			<split streaming="false">
 				<tokenize token="\n" />

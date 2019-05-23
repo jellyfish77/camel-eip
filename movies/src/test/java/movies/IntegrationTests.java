@@ -10,6 +10,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.camel.test.spring.CamelSpringTestSupport;
 import org.junit.After;
 import org.junit.Before;
@@ -33,28 +35,35 @@ public class IntegrationTests extends CamelSpringTestSupport {
 			+ "\n"
 			+ "Color,James Cameron,723,178,0,855,Joel David Moore,1000,760505847,Action|Adventure|Fantasy|Sci-Fi,CCH Pounder,Avatar ,886204,4834,Wes Studi,0,avatar|future|marine|native|paraplegic,http://www.imdb.com/title/tt0499549/?ref_=fn_tt_tt_1,3054,English,USA,PG-13,237000000,2009,936,7.9,1.78,33000";
 
+	Logger LOG = LoggerFactory.getLogger(IntegrationTests.class);
+	
+	ActiveMQClient amqc = new ActiveMQClient("localhost", "user", "user", "localhost");
+	
+	@Before
+	public void removeQueues() throws Exception {
+		LOG.info("Removing Queues...");		
+		amqc.modifyQueue("movieCsvFile", "removeQueue");
+		amqc.modifyQueue("ActiveMQ.DLQ", "removeQueue");
+		//amqc.modifyQueue("validatedMovieCmmRecord", "removeQueue");
+		LOG.info("Finished Removing Queues");
+	}
+
 	// Load the Camel context file into a Spring application context
 	@Override
 	protected AbstractXmlApplicationContext createApplicationContext() {
-		//Load the routes from the classpath 
+		// Load the routes from the classpath
 		return new ClassPathXmlApplicationContext("META-INF/spring/camel-context.xml");
 	}
 
 	/*
-	 * Integration test with ActiveMQ
+	 * Transacted integration test with ActiveMQ
 	 */
 	@Test
 	public void testTransactedQueue() throws Exception {
 
-		ActiveMQClient amqc = new ActiveMQClient("localhost", "user", "user", "localhost");
-		
-		amqc.modifyQueue("movieCsvFile", "removeQueue");
-		amqc.modifyQueue("ActiveMQ.DLQ", "removeQueue");
-		Thread.sleep(1000);
-				
-		
 		// cause exception on writing to queue
-		// camel will re-route original message from activemq:queue:movieCsvFile to ActiveMQ.DLQ
+		// camel will re-route original message from activemq:queue:movieCsvFile to
+		// ActiveMQ.DLQ
 		RouteBuilder rb = new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
@@ -64,19 +73,21 @@ public class IntegrationTests extends CamelSpringTestSupport {
 			}
 		};
 
-		// adviseWith enhances our route by adding the interceptor from the route builder
+		// adviseWith enhances our route by adding the interceptor from the route
+		// builder
 		// this allows us here directly in the unit test to add interceptors so we can
 		// simulate the connection failure
 		context.getRouteDefinition("validateXmlRoute").adviceWith(context, rb);
 
-		template.sendBodyAndHeader("activemq:queue:movieCsvFile", csvFile, "CamelFileName", "testCsvString");
+		template.sendBodyAndHeader("activemq:queue:movieCsvFile", csvFile, Exchange.FILE_NAME,
+				"testTransactedQueue.csv");
 		
 		// wait for the route to complete all delivery attempts
-		Thread.sleep(180000);				
-				
+		Thread.sleep(60000);
+
 		assertTrue(amqc.getNumberOfEnqueuedMessages("movieCsvFile") == 1);
 		assertTrue(amqc.getNumberOfConsumedMessages("movieCsvFile") == 1);
-		
+
 		assertTrue(amqc.getNumberOfEnqueuedMessages("ActiveMQ.DLQ") == 1);
 		assertTrue(amqc.getNumberOfConsumedMessages("ActiveMQ.DLQ") == 0);
 	}
