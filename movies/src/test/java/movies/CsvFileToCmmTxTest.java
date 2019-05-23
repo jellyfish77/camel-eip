@@ -40,6 +40,9 @@ public class CsvFileToCmmTxTest extends CamelSpringTestSupport {
 		return new ClassPathXmlApplicationContext("META-INF/spring/camel-context.xml");
 	}
 
+	/*
+	 * Integration test with ActiveMQ
+	 */
 	@Test
 	public void testTransactedQueue() throws Exception {
 
