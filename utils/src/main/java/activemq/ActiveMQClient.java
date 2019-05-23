@@ -18,6 +18,10 @@ import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,10 +34,9 @@ public class ActiveMQClient {
 	private J4pClient j4pClient;
 	private String brokerName;
 	private String host;
-	{
-
-	}
-
+	Logger LOG = LoggerFactory.getLogger(ActiveMQClient.class);
+	
+	
 	public static void main(String[] args) throws MalformedObjectNameException, J4pException {
 		ActiveMQClient activeMQClient = new ActiveMQClient("localhost", "user", "user", "localhost");
 
@@ -94,19 +97,19 @@ public class ActiveMQClient {
 		context.setAuthCache(authCache);
 
 		HttpClient client = HttpClientBuilder.create().build();
-
+		
 		// String uri = "http://" + mqUrl.getHost() + ":" + mqUrl.getPort() +
 		// "/hawtio/jolokia/exec/org.apache.activemq:type=Broker,brokerName=localhost/removeQueue/"
 		// + queueName;
 		String uri = "http://" + host + ":" + 8161 + "/api/jolokia/exec/org.apache.activemq:type=Broker,brokerName="
 				+ brokerName + "/" + operation + "/" + queueName;
 
-		System.out.println(uri);
+		LOG.info("Executing HTTP GET: " + uri);
 
 		HttpResponse response = client.execute(new HttpGet(uri), context);
 		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new IOException(response.getStatusLine().toString());
-		}
+		}		
 		return response.getEntity().getContent().toString();
 	}
 
