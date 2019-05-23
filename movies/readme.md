@@ -7,6 +7,10 @@
 	mvn clean install -U
 	(from parent)
 
+Skip unit tests:
+
+	mvn clean install -U -Dmaven.test.skip=true
+
 ### Execution
 
 	mvn camel:run
@@ -23,25 +27,31 @@ Skip Unit Tests:
 
 ### Unit Tests
 
-	mvn test -Dtest=CsvFileToCmmTxTest 2>&1 | tee CsvFileToCmmTxTest.log
+	mvn test -Dtest=CsvFileToCmmTxTest 2>&1 | tee CsvFileToCmmTxTest.log	
+	mvn test -Dtest=SplitCsvRouteMockTests#testSplitCsvWithMock 2>&1 | tee testSplitCsvWithMock.log
+	mvn test -Dtest=SplitCsvRouteMockTests#testSplitCsvWithMockAndSkip 2>&1 | tee testSplitCsvWithMockAndSkip.log
 
 ### ActiveMQ
 	
 	activemq stop && activemq start
 
+### Hawt.io
+
+Run Hawt.io console to interrogate ActiveMQ JMX exposed by Jolokia (JSON/HTTP):
+
+	java -jar /opt/hawtio-app-2.6.0.jar
+
 ### Other
 
-Find all code containing test cases:
-	
-	grep -lir --include \*.java 'CamelSpringTestSupport'
+Copy files containing multiple patterns to path:
 
-Get files with multiple matches:
+	find . -type f -name "*.java" | xargs grep -li 'CamelSpringTestSupport' | xargs grep -li 'mock' | xargs grep -li 'AbstractXmlApplicationContext' | xargs cp -t /home/otto/temp/camel_tests/spring/mock
 
-	grep -lir --include \*.java 'CamelSpringTestSupport' | grep -lir --include \*.java 'AbstractXmlApplicationContext'
+Where -lir:
 
-Copy files to path:
-
-	grep -lir --include \*.java 'CamelSpringTestSupport' | grep -lir --include \*.java 'AbstractXmlApplicationContext' | grep -lir --include \*.java 'activemq' | xargs cp -t /home/otto/temp/camel_tests/spring/activemq
+	-l, --files-with-matches  print only names of FILEs with selected lines
+	-i, --ignore-case         ignore case distinctions
+	-r, --recursive           like --directories=recurse
 
 Get # files matching by piping result to word count program:
 	
