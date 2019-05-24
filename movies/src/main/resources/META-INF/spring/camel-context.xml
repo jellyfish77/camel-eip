@@ -121,7 +121,7 @@
 			<log message="Inbound CSV file '${header.CamelFileName}' sent to queue" loggingLevel="INFO" marker="CSVComplete" />
 		</route>
 
-		<route id="getCsvFileFromQueue" >
+		<route id="getCsvFileFromQueue">
 			<from uri="activemq:queue:movieCsvFile" />
 			<transacted />
 			<log
@@ -192,8 +192,8 @@
 				<to uri="activemq:queue:validatedMovieCmmRecord" />
 				<doCatch>
 					<exception>org.apache.camel.ValidationException</exception>
-					<to uri="activemq:queue:movieCmmRecordDeadLetter" />
 					<process ref="messageLogger" id="Log Invalid XML Row" />
+					<to uri="activemq:queue:movieCmmRecordDeadLetter" />					
 				</doCatch>
 			</doTry>
 		</route>
@@ -286,6 +286,21 @@
 		<route id="foreignRoute">
 			<from uri="activemq:queue:foreignMovies" />
 			<process ref="messageLogger" id="Log Foreign Movie" />
+		</route>
+
+		<!-- Expose HTTP service on all network interfaces (0.0.0.0) to allow external access -->
+		<!-- Inject message into validation endpoint -->
+		<route id="cmmInjectionRoute">
+			<from uri="jetty://http://0.0.0.0:8888/cmminjection" />
+			<setHeader headerName="CamelFileName">
+				<constant>injected</constant>
+			</setHeader>
+			<log
+				message="Received request on Jetty Server (${body.length} chars): ${headers} ${body}  $simple{in.header.camelfilename}"
+				loggingLevel="INFO" />
+			<process ref="messageLogger" id="Log Received CMM Injection Message" />
+			<to uri="direct:enrichedMovieXmlRecord" />
+			<!--<to uri="activemq:queue:validatedMovieCmmRecord" />-->			
 		</route>
 
 	</camelContext>
