@@ -13,9 +13,15 @@ Skip unit tests:
 
 ### Execution
 
+Run Camel Spring configurations in a forked JVM from Maven:
+
 	mvn camel:run
 	
 	mvn camel:run  2>&1 | tee run.log
+	
+Run in same JVM as Maven (faster startup but potential classpath issues):
+	
+	mvn camel:embedded
 	
 Skip Unit Tests:
 
@@ -23,7 +29,9 @@ Skip Unit Tests:
 
 ### Dependancies
 
+### Web Service Injection
 
+	curl  -v -H 'Content-Type: application/xml; charset="utf-8"' http://localhost:8888/cmminjection -d "<Movie><Title>Avengers: Age of Ultron</Title><ImdbId>tt2395427</ImdbId><Gross>458991599</Gross><Format><Type>movie</Type><Color>Color</Color><Language>English</Language><AspectRatio>2.35</AspectRatio><Runtime>141</Runtime></Format><Production><Countries><Country>USA</Country></Countries><Budget>250000000</Budget><Year>2015</Year><ReleaseDate>2015-05-01Z</ReleaseDate><DvdDate>2015-10-02Z</DvdDate><Website>http://marvel.com/avengers</Website></Production><Genres><Genre>Action</Genre><Genre>Adventure</Genre><Genre>Sci-Fi</Genre></Genres><Plot><Description>When Tony Stark and Bruce Banner try to jump-start a dormant peacekeeping program called Ultron, things go horribly wrong and it's up to Earth's mightiest heroes to stop the villainous Ultron from enacting his terrible plan.</Description><PlotKeywords><PlotKeyword>artificial intelligence</PlotKeyword><PlotKeyword>based on comic book</PlotKeyword><PlotKeyword>captain america</PlotKeyword><PlotKeyword>marvel cinematic universe</PlotKeyword><PlotKeyword>superhero</PlotKeyword></PlotKeywords></Plot><Poster>https://m.media-amazon.com/images/M/MV5BMTM4OGJmNWMtOTM4Ni00NTE3LTg3MDItZmQxYjc4N2JhNmUxXkEyXkFqcGdeQXVyNTgzMDMzMTg@._V1_SX300.jpg</Poster><Awards>7 wins &amp; 45 nominations.</Awards><UserVotes>462669</UserVotes><NumUsersReviewed>1117</NumUsersReviewed><Rating>PG-13</Rating><ImdbLink>http://www.imdb.com/title/tt2395427/?ref_=fn_tt_tt_1</ImdbLink><Country>USA</Country><FacebookLikes>118000</FacebookLikes><NumPosterFaces>4</NumPosterFaces><Director><Name>Joss Whedon</Name><FacebookLikes>0</FacebookLikes></Director><Writers><Writer>Joss Whedon, Stan Lee (based on the Marvel comics by), Jack Kirby (based on the Marvel comics by), Joe Simon (character created by: Captain America), Jack Kirby (character created by: Captain America), Jim Starlin (character created by: Thanos)</Writer></Writers><NumReviews>635</NumReviews><Cast><Actors><Actor><Biling>1</Biling><Name>Chris Hemsworth</Name><FacebookLikes>26000</FacebookLikes></Actor><Actor><Biling>2</Biling><Name>Robert Downey Jr.</Name><FacebookLikes>21000</FacebookLikes></Actor><Actor><Biling>3</Biling><Name>Scarlett Johansson</Name><FacebookLikes>19000</FacebookLikes></Actor><Actor><Name>Mark Ruffalo</Name></Actor><Actor><Name>Chris Evans</Name></Actor></Actors></Cast><Ratings><Rating><Source>Internet Movie Database</Source><Value>7.3/10</Value></Rating><Rating><Source>Rotten Tomatoes</Source><Value>75%</Value></Rating><Rating><Source>Metacritic</Source><Value>66/100</Value></Rating></Ratings></Movie>"
 
 ### Unit Tests
 
